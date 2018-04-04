@@ -341,5 +341,15 @@ QbApp {
         menuDrawer.close();
         var item = appListViewComponent.createObject(appStackView,{"genre":genre});
         appStackView.push(item);
+        appStackView.currentItem.model = [];
+        appStackView.currentItem.startLoadingProgress();
+    }
+
+    function showCurrentAppListViewLoadingScreen(){
+        appStackView.currentItem.startLoadingProgress();
+    }
+
+    function addModelToCurrentAppListView(model){
+        appStackView.currentItem.setModel(model);
     }
 }

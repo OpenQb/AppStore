@@ -111,8 +111,9 @@ function readyXEngineResult(data)
 
     else if(json_data["action"] === "search:started"){
         console.log("Search started");
-        appListView.setModel([]);
-        appListView.startLoadingProgress();
+        //appListView.setModel([]);
+        //appListView.startLoadingProgress();
+        appUi.showCurrentAppListViewLoadingScreen();
     }
     else if(json_data["action"] === "search:progress"){
 
@@ -120,11 +121,12 @@ function readyXEngineResult(data)
     else if(json_data["action"] === "search:finished"){
         //console.log(data);
         console.log("Search finished");
-        appListView.setModel(json_data["data"]);
+        appUi.addModelToCurrentAppListView(json_data["data"]);
+        //appListView.setModel(json_data["data"]);
 //        for(var i=0;i<json_data["data"].length;++i){
 //            console.log(Object.keys(json_data["data"][i]));
 //        }
-        appListView.stopLoadingProgress();
+//        /appListView.stopLoadingProgress();
     }
 
 
