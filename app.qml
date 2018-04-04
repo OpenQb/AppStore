@@ -293,17 +293,79 @@ QbApp {
             interactive: false
             anchors.fill: parent
             currentIndex: 0
+            property bool isErrorOccured: false
             Page{
-                clip: true
                 id: loadingPage
+
+                Timer{
+                    id: mainTimer
+                    interval: 500
+                    repeat: true
+                    running: appUiSwipeView.currentIndex === 0 && !appUiSwipeView.isErrorOccured
+                    triggeredOnStart: true
+                    property int counter: 0
+                    onTriggered: {
+                        if(appUiSwipeView.currentIndex===0){
+                            if(counter === 3){
+                                counter = 0;
+                                loadingProgress.currentIndex = counter;
+                            }
+                            else{
+                                counter++;
+                                loadingProgress.currentIndex = counter;
+                            }
+                        }
+                    }
+                }
+                Label{
+                    id: loadingMessage
+                    text: "Indexing"
+                    font.bold: true
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    verticalAlignment: Label.AlignVCenter
+                    horizontalAlignment: Label.AlignHCenter
+                    maximumLineCount: 3
+                }
+
+                PageIndicator{
+                    id: loadingProgress
+                    count: 4
+                    anchors.top: loadingMessage.bottom
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
                 Item{
-                    width: 100
-                    height: 100
-                    anchors.centerIn: parent
-                    //color: "black"
-                    Text{
-                        text: "Loading..."
-                        color: appTheme.foreground
+                    anchors.top: loadingProgress.bottom
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width
+                    height: QbCoreOne.scale(50)
+                    visible: appUiSwipeView.isErrorOccured
+                    Row{
+                        anchors.centerIn: parent
+                        spacing: QbCoreOne.scale(10)
+                        Button{
+                            id: reloadButton
+                            text: "RELOAD"
+                            Material.background: appTheme.lighter(appTheme.accent,150)
+                            onClicked: {
+                                appUiSwipeView.currentIndex = 0;
+                                appUiSwipeView.isErrorOccured = false;
+                                loadingMessage.text = "Indexing";
+                                mainTimer.start();
+                                LUiController.startIndexing();
+                            }
+                        }
+                        Button{
+                            id: nextButton
+                            text: "NEXT"
+                            Material.background: appTheme.lighter(appTheme.accent,150)
+                            onClicked: {
+                                appUiSwipeView.currentIndex = 1;
+                                LUiController.search("","");
+
+                            }
+                        }
                     }
                 }
             }
@@ -333,10 +395,18 @@ QbApp {
 
     function showLoadingScreen(){
         appUiSwipeView.currentIndex = 0;
+        loadingMessage.text = "Indexing"
+        appUiSwipeView.isErrorOccured = false;
     }
 
     function hideLoadingScreen(){
         appUiSwipeView.currentIndex = 1;
+    }
+
+    function showIndexError(){
+        appUiSwipeView.currentIndex = 0;
+        loadingMessage.text = "Failed to index. \nPlease make sure you have stable internet connection.\nHit reload to index again."
+        appUiSwipeView.isErrorOccured = true;
     }
 
     function openMenuDrawer(){

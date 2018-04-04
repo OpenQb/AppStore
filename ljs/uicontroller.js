@@ -139,9 +139,15 @@ function readyXEngineResult(data)
         console.log(json_data["data"]);
     }
     else if(json_data["action"] === "indexing:finished"){
-        console.log(json_data["data"]);
-        appUi.hideLoadingScreen();
-        search("","");
+        //console.log(String(json_data["data"]).indexOf("Index failed"));
+        if(String(json_data["data"]).indexOf("Index failed")===0 ){
+            //console.log("got zero");
+            appUi.showIndexError();
+        }
+        else{
+            appUi.hideLoadingScreen();
+            search("","");
+        }
     }
 
 
