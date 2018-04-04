@@ -91,6 +91,8 @@ QbApp {
                 }
                 onCurrentIndexChanged: {
                     menuDrawerSwipeView.currentIndex = currentIndex;
+                    appsGenreList.selectedIndex = -1;
+                    gamesGenreList.selectedIndex = -1;
                 }
             }
 
@@ -101,37 +103,178 @@ QbApp {
                 currentIndex: menuDrawerTabBar.currentIndex
                 interactive: false
                 clip: true
+                Material.accent: appTheme.isDark(appTheme.primary)?appTheme.lighter(appTheme.accent,200):appTheme.lighter(appTheme.accent,100)
+                Material.primary: appTheme.primary
+                Material.background: appTheme.background
+                Material.foreground: appTheme.foreground
+                Material.theme: appTheme.theme==="dark"?Material.Dark:Material.Light
 
-                ListView{
-                    clip: true
-                    model: 10
-                    delegate: Item{
-                        width: parent.width
-                        height: 100
-                        Text{
-                            text: index
-                            anchors.fill: parent
+                CategoryList{
+                    id: appsGenreList
+                    onCategorySelected:{
+                        appUi.addGenreList(category)
+                    }
+                    model: ListModel{
+                        ListElement{
+                            name: "Art & Design"
+                        }
+                        ListElement{
+                            name: "Auto & Vehicles"
+                        }
+                        ListElement{
+                            name: "Beauty"
+                        }
+                        ListElement{
+                            name: "Books & Reference"
+                        }
+                        ListElement{
+                            name: "Business"
+                        }
+                        ListElement{
+                            name: "Comics"
+                        }
+                        ListElement{
+                            name: "Communication"
+                        }
+                        ListElement{
+                            name: "Dating"
+                        }
+                        ListElement{
+                            name: "Education"
+                        }
+                        ListElement{
+                            name: "Entertainment"
+                        }
+                        ListElement{
+                            name: "Events"
+                        }
+                        ListElement{
+                            name: "Family"
+                        }
+                        ListElement{
+                            name: "Finance"
+                        }
+                        ListElement{
+                            name: "Food & Drink"
+                        }
+                        ListElement{
+                            name: "Health & Fitness"
+                        }
+                        ListElement{
+                            name: "House & Home"
+                        }
+                        ListElement{
+                            name: "Libraries & Demo"
+                        }
+                        ListElement{
+                            name: "Lifestyle"
+                        }
+                        ListElement{
+                            name: "Maps & Navigation"
+                        }
+                        ListElement{
+                            name: "Medical"
+                        }
+                        ListElement{
+                            name: "Music & Audio"
+                        }
+                        ListElement{
+                            name: "News & Magazines"
+                        }
+                        ListElement{
+                            name: "Parenting"
+                        }
+                        ListElement{
+                            name: "Personalization"
+                        }
+                        ListElement{
+                            name: "Photography"
+                        }
+                        ListElement{
+                            name: "Productivity"
+                        }
+                        ListElement{
+                            name: "Shopping"
+                        }
+                        ListElement{
+                            name: "Social"
+                        }
+                        ListElement{
+                            name: "Sports"
+                        }
+                        ListElement{
+                            name: "Tools"
+                        }
+                        ListElement{
+                            name: "Travel & Local"
+                        }
+                        ListElement{
+                            name: "Video Players & Editors"
+                        }
+                        ListElement{
+                            name: "Weather"
                         }
                     }
                 }
+                CategoryList{
+                    id: gamesGenreList
+                    onCategorySelected:{
+                        appUi.addGenreList(category)
+                    }
 
-                ListView{
-                    clip: true
-                    model: 100
-                    delegate: Item{
-                        width: parent.width
-                        height: 100
-                        Text{
-                            text: index
-                            anchors.fill: parent
+                    model: ListModel{
+                        ListElement{
+                            name: "Action"
                         }
+                        ListElement{
+                            name: "Adventure"
+                        }
+                        ListElement{
+                            name: "Arcade"
+                        }
+                        ListElement{
+                            name: "Board"
+                        }
+                        ListElement{
+                            name: "Card"
+                        }
+                        ListElement{
+                            name: "Casino"
+                        }
+                        ListElement{
+                            name: "Educational"
+                        }
+                        ListElement{
+                            name: "Music"
+                        }
+                        ListElement{
+                            name: "Puzzle"
+                        }
+                        ListElement{
+                            name: "Racing"
+                        }
+                        ListElement{
+                            name: "Role Playing"
+                        }
+                        ListElement{
+                            name: "Sports"
+                        }
+                        ListElement{
+                            name: "Strategy"
+                        }
+                        ListElement{
+                            name: "Trivia"
+                        }
+                        ListElement{
+                            name: "Word"
+                        }
+
                     }
                 }
-
-
             }
         }
     }
+
 
     Page{
         id: appUiMainPage
@@ -145,11 +288,13 @@ QbApp {
         Material.theme: appTheme.theme==="dark"?Material.Dark:Material.Light
 
         SwipeView{
+            clip: true
             id: appUiSwipeView
             interactive: false
             anchors.fill: parent
             currentIndex: 0
             Page{
+                clip: true
                 id: loadingPage
                 Item{
                     width: 100
@@ -164,11 +309,19 @@ QbApp {
             }
 
             StackView{
+                clip: true
                 id: appStackView
                 initialItem: AppListView{
                     id: appListView
                 }
             }
+        }
+    }
+
+    Component {
+        id: appListViewComponent
+        AppListView {
+            id: appListViewNew
         }
     }
 
@@ -182,5 +335,11 @@ QbApp {
 
     function openMenuDrawer(){
         menuDrawer.open();
+    }
+
+    function addGenreList(genre){
+        menuDrawer.close();
+        var item = appListViewComponent.createObject(appStackView,{"genre":genre});
+        appStackView.push(item);
     }
 }
