@@ -10,15 +10,70 @@ Page {
     property string appName: ""
     property string appVersion: ""
     property string appNameSpace: ""
+    property string appRepo: ""
     property bool loading: true
     property bool isErrorOccured: false
+    property string errorMessage:""
+
+    property int appJSONId: -1;
+    property int appImageJSONId: -1;
+
+    property var appJSONData: ({});
+    property var appImageJSONData: ({});
 
     Component.onCompleted: {
-        //mainTimer.start();
+        downloadDetails();
     }
 
     QbRequest{
+        id: downloader
+        onResultReady: {
+            var jdata;
+            console.log(rid);
+            //console.log(result);
+            if(appJSONId === rid){
+                appJSONId = -1;
+                jdata = JSON.parse(result);
+                if(jdata["status_code"] === 200){
+                    //ready for next phase
+                    console.log("Ready for next phase");
+                    appJSONData = JSON.parse(QbCoreOne.fromBase64(jdata["data"]));
+                    var d1 = downloader.get("https://raw.githubusercontent.com/"+appRepo+"/"+appVersion+"/appimage.json");
+                    //console.log(JSON.stringify(d1));
+                    appSingleView.appImageJSONId = d1["rid"];
+                }
+                else{
+                    isErrorOccured = true;
+                    loadingMessage.text = "Unknown error occured."
+                }
+            }
 
+            if(appImageJSONId === rid){
+                appImageJSONId = -1;
+                jdata = JSON.parse(result);
+                if(jdata["status_code"] === 200){
+                    //ready for next phase
+                    console.log("Ready displaying data");
+                    appImageJSONData = JSON.parse(QbCoreOne.fromBase64(jdata["data"]));
+                    loading = false;
+                    refreshDetails();
+                }
+                else{
+                    isErrorOccured = true;
+                    loadingMessage.text = "Unknown error occured."
+                }
+            }
+        }
+    }
+
+    Page{
+        id: appDetailsPage
+        anchors.fill: parent
+        visible: !loading
+        Material.background: "transparent"
+        Label{
+            id: appDescription
+        }
     }
 
     Page{
@@ -95,9 +150,16 @@ Page {
         }
     }
 
+    function refreshDetails(){
+        appDescription.text = appJSONData["description"];
+    }
+
 
     function downloadDetails(){
         appSingleView.loading = true;
         loadingMessage.text = "Loading"
+        var d1 = downloader.get("https://raw.githubusercontent.com/"+appRepo+"/"+appVersion+"/app.json");
+        console.log(JSON.stringify(d1));
+        appSingleView.appJSONId = d1["rid"];
     }
 }

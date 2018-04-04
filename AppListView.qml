@@ -195,7 +195,9 @@ Page {
                             gridView.selectedIndex = index;
                             appUi.addSingleAppView(String(appListView.model[index]["name"]),
                                                    String(appListView.model[index]["namespace"]),
-                                                   String(appListView.model[index]["version"]))
+                                                   String(appListView.model[index]["version"]),
+                                                   String(appListView.model[index]["repo"])
+                                                   )
                         }
                     }
                     //                    Rectangle{
