@@ -163,7 +163,7 @@ Page {
             anchors.top: parent.top
             anchors.topMargin: QbCoreOne.scale(20)
             cellHeight: QbCoreOne.scale(100)
-            cellWidth: Qt.platform.os === "android"?gridView.width:QbCoreOne.scale(200)
+            cellWidth: Qt.platform.os === "android"?gridView.width:QbCoreOne.scale(300)
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.leftMargin: QbCoreOne.scale(10)
@@ -178,7 +178,7 @@ Page {
                 id: singleGrid
                 width: gridView.cellWidth*0.90
                 height: gridView.cellHeight*0.90
-                property color textColor: gridView.selectedIndex===index?appTheme.lighter(appTheme.secondary): appTheme.foreground
+                property color textColor: gridView.selectedIndex===index?appTheme.lighter(appTheme.accent,200): appTheme.foreground
                 Rectangle{
                     //translucencySource: appBackground
                     anchors.fill: parent
@@ -189,6 +189,9 @@ Page {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            gridView.selectedIndex = index;
+                        }
+                        onDoubleClicked: {
                             gridView.selectedIndex = index;
                             appUi.addSingleAppView(String(appListView.model[index]["name"]),
                                                    String(appListView.model[index]["namespace"]),
@@ -223,17 +226,22 @@ Page {
                         anchors.leftMargin: QbCoreOne.scale(5)
                         anchors.right: parent.right
                         height: appIconImage.height
+                        clip: true
                         Column{
                             anchors.fill: parent
                             Label{
                                 text: String(appListView.model[index]["name"])
                                 color: singleGrid.textColor
+                                width: parent.width
                             }
                             Label{
                                 text: String(appListView.model[index]["namespace"])
                                 color: appTheme.darker(singleGrid.textColor,150)
+                                width: parent.width
+                                elide: Label.ElideMiddle
                             }
                             Label{
+                                width: parent.width
                                 text: String(appListView.model[index]["version"])
                                 color: appTheme.darker(singleGrid.textColor,150)
                             }
