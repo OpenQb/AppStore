@@ -324,6 +324,12 @@ QbApp {
             id: appListViewNew
         }
     }
+    Component{
+        id: appViewComponent
+        AppView{
+            id: appView
+        }
+    }
 
     function showLoadingScreen(){
         appUiSwipeView.currentIndex = 0;
@@ -346,10 +352,20 @@ QbApp {
     }
 
     function showCurrentAppListViewLoadingScreen(){
-        appStackView.currentItem.startLoadingProgress();
+        //console.log(String(appStackView.currentItem))
+        if(String(appStackView.currentItem).indexOf("AppListView") === 0){
+            appStackView.currentItem.startLoadingProgress();
+        }
     }
 
     function addModelToCurrentAppListView(model){
-        appStackView.currentItem.setModel(model);
+        if(String(appStackView.currentItem).indexOf("AppListView") === 0){
+            appStackView.currentItem.setModel(model);
+        }
+    }
+
+    function addSingleAppView(name,namespace,version){
+        var item = appViewComponent.createObject(appStackView,{"appName":name,"appVersion":version,"appNamespace":namespace});
+        appStackView.push(item);
     }
 }

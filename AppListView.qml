@@ -66,8 +66,8 @@ Page {
                     while(appStackView.depth>1){
                         appStackView.pop();
                     }
-                    appListView.genre = "";
-                    appListView.tag = "";
+                    //appListView.genre = "";
+                    //appListView.tag = "";
                 }
             }
 
@@ -157,22 +157,88 @@ Page {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        ListView{
+        GridView{
+            id: gridView
+            clip: true
             anchors.top: parent.top
             anchors.topMargin: QbCoreOne.scale(20)
-
+            cellHeight: QbCoreOne.scale(100)
+            cellWidth: Qt.platform.os === "android"?gridView.width:QbCoreOne.scale(200)
             anchors.bottom: parent.bottom
             anchors.left: parent.left
+            anchors.leftMargin: QbCoreOne.scale(10)
             anchors.right: parent.right
+            anchors.rightMargin: QbCoreOne.scale(10)
 
             model:appListView.model
             visible: appListView.model.length!==0
+            property int selectedIndex: -1;
 
-            delegate: Rectangle{
-                color: "blue"
-                Text{
-                    text: String(appListView.model[index]["name"])
-                    color: appTheme.foreground
+            delegate: Item{
+                id: singleGrid
+                width: gridView.cellWidth*0.90
+                height: gridView.cellHeight*0.90
+                property color textColor: gridView.selectedIndex===index?appTheme.lighter(appTheme.secondary): appTheme.foreground
+                Rectangle{
+                    //translucencySource: appBackground
+                    anchors.fill: parent
+                    color: "transparent"
+                    //border.color: gridView.selectedIndex===index?appTheme.lighter(appTheme.secondary): appTheme.foreground
+                    //border.width: QbCoreOne.scale(2)
+                    //radius: QbCoreOne.scale(5)
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            gridView.selectedIndex = index;
+                            appUi.addSingleAppView(String(appListView.model[index]["name"]),
+                                                   String(appListView.model[index]["namespace"]),
+                                                   String(appListView.model[index]["version"]))
+                        }
+                    }
+                    //                    Rectangle{
+                    //                        width: QbCoreOne.scale(2)
+                    //                        height: parent.height
+                    //                        border.color: gridView.selectedIndex===index?appTheme.lighter(appTheme.secondary): appTheme.foreground
+                    //                    }
+
+                    //itemRadious: 0
+                    //backgroundColorOpacity: 0.6
+                    Image{
+                        id: appIconImage
+                        anchors.left: parent.left
+                        anchors.leftMargin: QbCoreOne.scale(5)
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: QbCoreOne.scale(64)
+                        smooth: true
+                        mipmap: true
+                        fillMode: Image.Image.PreserveAspectFit
+                        height: QbCoreOne.scale(64)
+                        source: "https://raw.githubusercontent.com/"+appListView.model[index]["repo"]+"/"+appListView.model[index]["version"]+"/app.png"
+                    }
+
+                    Item{
+                        id: textPlaceHolder
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: appIconImage.right
+                        anchors.leftMargin: QbCoreOne.scale(5)
+                        anchors.right: parent.right
+                        height: appIconImage.height
+                        Column{
+                            anchors.fill: parent
+                            Label{
+                                text: String(appListView.model[index]["name"])
+                                color: singleGrid.textColor
+                            }
+                            Label{
+                                text: String(appListView.model[index]["namespace"])
+                                color: appTheme.darker(singleGrid.textColor,150)
+                            }
+                            Label{
+                                text: String(appListView.model[index]["version"])
+                                color: appTheme.darker(singleGrid.textColor,150)
+                            }
+                        }
+                    }
                 }
             }
         }
