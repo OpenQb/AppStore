@@ -114,6 +114,7 @@ Page {
                 height: parent.height
                 verticalAlignment: Label.AlignVCenter
                 horizontalAlignment: Label.AlignHCenter
+                font.bold: true
             }
 
             TextField{
