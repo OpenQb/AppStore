@@ -201,10 +201,10 @@ Page {
                             Material.background: appTheme.lighter(appTheme.primary,150)
                             onClicked: {
                                 if(downloadButton.text === "cancel"){
-                                    LUiController.cancelDownload(appSingleView.appNameSpace);
+                                    cancelDownload();
                                 }
                                 else{
-                                    LUiController.downloadApp(appNameSpace,appRepo,appVersion);
+                                    downloadApp();
                                 }
                                 downloadButtonUpdate();
                             }
@@ -280,13 +280,25 @@ Page {
         }
     }
 
+    function downloadApp(){
+        LUiController.downloadApp(appSingleView.appNameSpace,
+                                  appSingleView.appRepo,
+                                  appSingleView.appVersion);
+    }
+    function cancelDownload(){
+        LUiController.cancelDownload(appSingleView.appNameSpace)
+    }
+    function isDownloading(){
+        return LUiController.isDownloading(appSingleView.appNameSpace)
+    }
+
     function isCurrentOsSupported(lst){
         return lst.indexOf(Qt.platform.os) !== -1;
     }
 
     function downloadButtonUpdate(){
         downloadButton.enabled = isCurrentOsSupported(appJSONData["supportedOs"]);
-        if(LUiController.isDownloading(appSingleView.appNameSpace)){
+        if(isDownloading()){
             downloadButton.text = "cancel";
         }
         else{
