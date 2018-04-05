@@ -96,12 +96,24 @@ Page {
                 height: QbCoreOne.scale(50)
                 text: QbMF3.icon("mf-refresh")
                 font.family: QbMF3.family
-                anchors.right: parent.right
+                anchors.right: showDownloadManagerButton.left
                 onClicked: {
                     appListView.genre = "";
                     appListView.tag = "";
                     startLoadingProgress();
                     LUiController.search("","");
+                }
+            }
+
+            ToolButton{
+                id: showDownloadManagerButton
+                width: QbCoreOne.scale(50)
+                height: QbCoreOne.scale(50)
+                text: QbMF3.icon("mf-file_download")
+                font.family: QbMF3.family
+                anchors.right: parent.right
+                onClicked: {
+                    appDownloadManagerUi.open()
                 }
             }
 
@@ -123,7 +135,7 @@ Page {
                 opacity: 0
                 visible: false
                 id: searchField
-                width: parent.width*0.50
+                width: parent.width*0.40
                 height: parent.height
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter

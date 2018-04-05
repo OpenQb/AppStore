@@ -54,6 +54,25 @@ QbApp {
         id: fileObject
     }
 
+    Popup {
+        id: appDownloadManagerUi
+        x: (parent.width - width)/2.0
+        y: (parent.height - height)/2.0
+        width: parent.width*0.90
+        height: parent.height*0.90
+        modal: true
+        focus: true
+        topPadding: 0
+        bottomPadding: 0
+        rightPadding: 0
+        leftPadding: 0
+        background: TranslucentGlass{
+            translucencySource: appBackground
+            backgroundColorOpacity: 0.7
+        }
+    }
+
+
     Rectangle{
         id: statusBarPlaceHolder
         width: parent.width
