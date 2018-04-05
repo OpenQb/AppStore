@@ -160,6 +160,21 @@ function readyXEngineResult(data)
     }
 }
 
+
+function downloadApp(namespace,repo,version){
+
+}
+
+function isDownloading(namespace){
+
+    return false;
+}
+
+function cancelDownload(namespace){
+
+}
+
+
 function isReady(){
     return ready;
 }

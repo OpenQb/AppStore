@@ -439,7 +439,7 @@ QbApp {
     }
 
     function addSingleAppView(name,namespace,version,repo){
-        var item = appViewComponent.createObject(appStackView,{"appName":name,"appVersion":version,"appNamespace":namespace,"appRepo":repo});
+        var item = appViewComponent.createObject(appStackView,{"appName":name,"appVersion":version,"appNameSpace":namespace,"appRepo":repo});
         appStackView.push(item);
     }
 }

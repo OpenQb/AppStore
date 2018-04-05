@@ -5,6 +5,8 @@ import QtQuick.Controls.Material 2.3
 import Qb 1.0
 import Qb.Core 1.0
 
+import "ljs/uicontroller.js" as LUiController
+
 Page {
     id: appSingleView
     clip: true
@@ -20,12 +22,47 @@ Page {
 
     property int appJSONId: -1;
     property int appImageJSONId: -1;
+    property int versionCollectorId: -1;
 
     property var appJSONData: ({});
     property var appImageJSONData: ({});
 
+    signal showImageFullScreen(string src);
+
     Component.onCompleted: {
         downloadDetails();
+    }
+
+    onShowImageFullScreen: {
+        fullScreenImage.openWithImage(src);
+    }
+
+    Popup {
+        id: fullScreenImage
+        x: (parent.width - width)/2.0
+        y: (parent.height - height)/2.0
+        width: parent.width*0.90
+        height: parent.height*0.90
+        modal: true
+        focus: true
+        topPadding: 0
+        bottomPadding: 0
+        rightPadding: 0
+        leftPadding: 0
+        Material.background: appTheme.primary
+
+        Image{
+            id: fImage
+            fillMode: Image.Image.PreserveAspectFit
+            width: parent.width*0.90
+            height: parent.height*0.90
+            anchors.centerIn: parent
+        }
+
+        function openWithImage(src){
+            fImage.source = src;
+            fullScreenImage.open();
+        }
     }
 
     QbRequest{
@@ -66,6 +103,28 @@ Page {
                     loadingMessage.text = "Unknown error occured."
                 }
             }
+
+            if(versionCollectorId === rid){
+                versionCollectorId = -1;
+                jdata = JSON.parse(result);
+                if(jdata["status_code"] === 200){
+                    //ready for next phase
+                    //console.log("Ready displaying data");
+                    var vd = JSON.parse(QbCoreOne.fromBase64(jdata["data"]));
+                    if(vd["tag_name"] !== undefined){
+                        appSingleView.appVersion = vd["tag_name"];
+                    }
+
+                    var d3 = downloader.get("https://raw.githubusercontent.com/"+appRepo+"/"+appVersion+"/app.json");
+                    //console.log(JSON.stringify(d1));
+                    appSingleView.appJSONId = d3["rid"];
+                }
+                else{
+                    isErrorOccured = true;
+                    loadingMessage.text = "Unknown error occured."
+                }
+            }
+
         }
     }
 
@@ -78,6 +137,7 @@ Page {
 
         Column{
             anchors.fill: parent
+            spacing: QbCoreOne.scale(10)
 
             Item{
                 id: topPlaceHolder
@@ -92,7 +152,7 @@ Page {
                     width: QbCoreOne.scale(150)
                     smooth: true
                     mipmap: true
-                    fillMode: Image.Image.PreserveAspectFit
+                    fillMode: Image.PreserveAspectFit
                     height: QbCoreOne.scale(150)
                     source: "https://raw.githubusercontent.com/"+appRepo+"/"+appVersion+"/app.png"
                 }
@@ -136,8 +196,18 @@ Page {
 
                         Button{
                             id: downloadButton
-                            text: appStorage.properTextForDownload(appNameSpace,appVersion)
+                            enabled: false
+                            text: "install"//appStorage.properTextForDownload(appNameSpace,appVersion)
                             Material.background: appTheme.lighter(appTheme.primary,150)
+                            onClicked: {
+                                if(downloadButton.text === "cancel"){
+                                    LUiController.cancelDownload(appSingleView.appNameSpace);
+                                }
+                                else{
+                                    LUiController.downloadApp(appNameSpace,appRepo,appVersion);
+                                }
+                                downloadButtonUpdate();
+                            }
                         }
                     }
                 }
@@ -145,16 +215,21 @@ Page {
 
             Item{
                 id: middlePlaceHolder
-                height: QbCoreOne.scale(300)
+                height: flickArea.height
                 anchors.left: parent.left
                 anchors.leftMargin: QbCoreOne.scale(10)
                 anchors.right: parent.right
                 anchors.rightMargin: QbCoreOne.scale(10)
                 Flickable {
+                    id: flickArea
                     clip: true
-                    anchors.fill: parent
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
                     flickableDirection: Flickable.VerticalFlick
                     pixelAligned: true
+                    height: Math.min(QbCoreOne.scale(300),contentHeight)
+
                     contentHeight: appDescription.height
                     contentWidth: parent.width
                     TextEdit {
@@ -166,7 +241,6 @@ Page {
                         focus: false
                         color: topPlaceHolder.textColor
                         font.pixelSize: QbCoreOne.scale(15)
-                        text: QbCoreOne.credits()
                         wrapMode: Text.Wrap
                         activeFocusOnPress: false
                         textMargin: 0
@@ -187,15 +261,19 @@ Page {
                     model: screenShotList.m;
                     anchors.fill: parent
                     orientation: ListView.Horizontal
-//                    model: ListModel{
-//                        id: screenShotList
-//                    }
 
                     delegate: Image{
                         source: screenShotList.m[index]
                         width: parent.height
                         height: width
                         fillMode: Image.PreserveAspectFit
+
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked: {
+                                appSingleView.showImageFullScreen(screenShotList.m[index]);
+                            }
+                        }
                     }
                 }
             }
@@ -204,6 +282,16 @@ Page {
 
     function isCurrentOsSupported(lst){
         return lst.indexOf(Qt.platform.os) !== -1;
+    }
+
+    function downloadButtonUpdate(){
+        downloadButton.enabled = isCurrentOsSupported(appJSONData["supportedOs"]);
+        if(LUiController.isDownloading(appSingleView.appNameSpace)){
+            downloadButton.text = "cancel";
+        }
+        else{
+            downloadButton.text = appStorage.properTextForDownload(appSingleView.appNameSpace,appSingleView.appVersion);
+        }
     }
 
     function refreshDetails(){
@@ -220,9 +308,7 @@ Page {
             m.push(appImageJSONData["screenshotList"][i][1]);
         }
         screenShotList.m = m;
-
-        downloadButton.enabled = isCurrentOsSupported(supportedOs);
-        downloadButton.text = appStorage.properTextForDownload(appSingleView.appNameSpace,appSingleView.appVersion);
+        downloadButtonUpdate();
     }
 
     Page{
@@ -300,10 +386,21 @@ Page {
     }
 
     function downloadDetails(){
+        appSingleView.versionCollectorId = -1;
+        appSingleView.appJSONId = -1;
+        appSingleView.appImageJSONId = -1;
         appSingleView.loading = true;
-        loadingMessage.text = "Loading"
-        var d1 = downloader.get("https://raw.githubusercontent.com/"+appRepo+"/"+appVersion+"/app.json");
-        console.log(JSON.stringify(d1));
-        appSingleView.appJSONId = d1["rid"];
+        loadingMessage.text = "Loading";
+        if(appSingleView.latest){
+            //https://api.github.com/repos/mkawserm/2048/releases/latest
+            var d2 = downloader.get("https://api.github.com/repos/"+appRepo+"/releases/latest");
+            //console.log(JSON.stringify(d1));
+            appSingleView.versionCollectorId = d2["rid"];
+        }
+        else{
+            var d1 = downloader.get("https://raw.githubusercontent.com/"+appRepo+"/"+appVersion+"/app.json");
+            //console.log(JSON.stringify(d1));
+            appSingleView.appJSONId = d1["rid"];
+        }
     }
 }
