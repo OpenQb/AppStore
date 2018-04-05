@@ -19,7 +19,21 @@ function uniq_fast(a) {
 
 load("AppStoreDbApi.js");
 
+
+/*QbApp Downloadmanager*/
+
+function QbDownloadManager(){
+
+
+    this.download = function(ns,repo,version){
+
+    }
+}
+
+
+
 var readySignalSent = false;
+var downloadManager = new QbDownloadManager();
 var dbApiObject = new AppStoreDbApi();
 var counter = 30*2;
 
@@ -39,11 +53,12 @@ var _onMessageReceived = function(data)
         sendObject({"action":"search:started"});
         dbApiObject.search(json_data["data"][0],json_data["data"][1]);
     }
-
+    else if(json_data["action"] === "download"){
+        downloadManager.download(json_data["data"]["namespace"],json_data["data"]["repo"],json_data["data"]["version"]);
+    }
     else if(json_data["action"] === "indexing"){
         dbApiObject.startIndexing();
     }
-
     else{
         sendObject({"action":"heartbeat","data":"Do not know what to do with it:"+data});
     }
