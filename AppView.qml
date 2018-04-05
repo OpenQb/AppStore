@@ -235,6 +235,9 @@ Page {
                                 if(downloadButton.text === "cancel"){
                                     cancelDownload();
                                 }
+                                else if(downloadButton.text === "remove"){
+                                    removeApp();
+                                }
                                 else{
                                     downloadApp();
                                 }
@@ -317,6 +320,10 @@ Page {
                                   appSingleView.appRepo,
                                   appSingleView.appVersion);
     }
+    function removeApp(){
+
+    }
+
     function cancelDownload(){
         LUiController.cancelDownload(appSingleView.appNameSpace)
     }
