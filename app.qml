@@ -397,6 +397,12 @@ QbApp {
         }
     }
 
+    function pop(){
+        if(appStackView.depth>1){
+            appStackView.pop();
+        }
+    }
+
     function showLoadingScreen(){
         appUiSwipeView.currentIndex = 0;
         loadingMessage.text = "Indexing"

@@ -127,10 +127,42 @@ Page {
 
         }
     }
+    ToolBar{
+        id: toolBar
+        anchors.top:parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        //Material.background: "transparent"
+
+        ToolButton{
+            id: prevPage
+            text: QbMF3.icon("mf-keyboard_arrow_left")
+            font.family: QbMF3.family
+            font.bold: true
+            width: QbCoreOne.scale(50)
+            height: QbCoreOne.scale(50)
+            onClicked: {
+                appUi.pop()
+            }
+        }
+        Label{
+            anchors.fill: parent
+            font.bold: true
+            anchors.centerIn: parent
+            verticalAlignment: Label.AlignVCenter
+            horizontalAlignment: Label.AlignHCenter
+            text: appName
+        }
+    }
 
     Page{
         id: appDetailsPage
-        anchors.fill: parent
+
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: toolBar.bottom
+        anchors.bottom: parent.bottom
+
         visible: !loading
         clip: true
         Material.background: "transparent"
@@ -325,7 +357,10 @@ Page {
 
     Page{
         id: loadingPage
-        anchors.fill: parent
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: toolBar.bottom
+        anchors.bottom: parent.bottom
         visible: loading
         Material.background: "transparent"
 
