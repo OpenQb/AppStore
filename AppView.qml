@@ -9,11 +9,13 @@ Page {
     id: appSingleView
     clip: true
     property string appName: ""
+    property string appRepo: ""
     property string appVersion: ""
     property string appNameSpace: ""
-    property string appRepo: ""
+
     property bool loading: true
     property bool isErrorOccured: false
+    property bool latest: false
     property string errorMessage:""
 
     property int appJSONId: -1;
@@ -133,18 +135,21 @@ Page {
                         }
 
                         Button{
-                            text: "DOWNLOAD"
+                            id: downloadButton
+                            text: appStorage.properTextForDownload(appNameSpace,appVersion)
                             Material.background: appTheme.lighter(appTheme.primary,150)
                         }
-
                     }
                 }
             }
 
             Item{
                 id: middlePlaceHolder
-                width: parent.width
                 height: QbCoreOne.scale(300)
+                anchors.left: parent.left
+                anchors.leftMargin: QbCoreOne.scale(10)
+                anchors.right: parent.right
+                anchors.rightMargin: QbCoreOne.scale(10)
                 Flickable {
                     clip: true
                     anchors.fill: parent
@@ -171,14 +176,53 @@ Page {
 
             Item{
                 id: bottomPlaceHolder
-                width: parent.width
+                anchors.left: parent.left
+                anchors.leftMargin: QbCoreOne.scale(10)
+                anchors.right: parent.right
+                anchors.rightMargin: QbCoreOne.scale(10)
                 height:  parent.height - topPlaceHolder.height - middlePlaceHolder.height
+                ListView{
+                    id: screenShotList
+                    property var m: []
+                    model: screenShotList.m;
+                    anchors.fill: parent
+                    orientation: ListView.Horizontal
+//                    model: ListModel{
+//                        id: screenShotList
+//                    }
+
+                    delegate: Image{
+                        source: screenShotList.m[index]
+                        width: parent.height
+                        height: width
+                        fillMode: Image.PreserveAspectFit
+                    }
+                }
             }
         }
     }
 
+    function isCurrentOsSupported(lst){
+        return lst.indexOf(Qt.platform.os) !== -1;
+    }
+
     function refreshDetails(){
-        appDescription.text = appJSONData["description"];
+        var rText = appJSONData["description"];
+        var supportedOs = appJSONData["supportedOs"];
+        rText = rText+"<br/><br/>"+"<b>Supported os: "+supportedOs.join()+"</b>";
+        //appDescription.text = appJSONData["description"];
+        appSingleView.appName = appJSONData["name"];
+        appSingleView.appVersion = appJSONData["version"];
+        appDescription.text = rText;
+
+        var m = [];
+        for(var i=0;i<appImageJSONData["screenshotList"].length;++i){
+            m.push(appImageJSONData["screenshotList"][i][1]);
+        }
+        screenShotList.m = m;
+
+        downloadButton.enabled = isCurrentOsSupported(supportedOs);
+        downloadButton.text = appStorage.properTextForDownload(appSingleView.appNameSpace,appSingleView.appVersion);
     }
 
     Page{

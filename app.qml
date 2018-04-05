@@ -15,6 +15,10 @@ QbApp {
         id: appTheme
     }
 
+    QbAppStorage{
+        id: appStorage
+    }
+
     Image {
         id: appBackground
         anchors.fill: parent
