@@ -65,6 +65,36 @@ Page {
         }
     }
 
+    Popup {
+        id: messageDialog
+        x: (parent.width - width)/2.0
+        y: (parent.height - height)/2.0
+        width: Math.min(parent.width*0.90,300)
+        height: Math.min(parent.height*0.90,200)
+        modal: true
+        focus: true
+        topPadding: 0
+        bottomPadding: 0
+        rightPadding: 0
+        leftPadding: 0
+        background: TranslucentGlass{
+            translucencySource: appBackground
+            backgroundColorOpacity: 0.7
+        }
+        Label{
+            anchors.fill: parent
+            id: messageBox
+            text: ""
+            verticalAlignment: Label.AlignVCenter
+            horizontalAlignment: Label.AlignHCenter
+        }
+
+        function openWithMessage(msg){
+            messageBox.text = msg;
+            messageDialog.open();
+        }
+    }
+
     QbRequest{
         id: downloader
         onResultReady: {
@@ -321,7 +351,13 @@ Page {
                                   appSingleView.appVersion);
     }
     function removeApp(){
-
+        if(appStorage.removeApp(appSingleView.appNameSpace)){
+            messageDialog.openWithMessage(appSingleView.appName+" Removed")
+        }
+        else{
+            messageDialog.openWithMessage("Failed to remove "+appSingleView.appName)
+        }
+        //downloadButtonUpdate();
     }
 
     function cancelDownload(){
