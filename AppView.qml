@@ -201,19 +201,19 @@ Page {
                     Column{
                         anchors.fill: parent
                         Label{
-                            text: appName
+                            text: appSingleView.appName
                             color: topPlaceHolder.textColor
                             width: parent.width
                             font.bold: true
                         }
                         Label{
                             width: parent.width
-                            text: appVersion
+                            text: appSingleView.appVersion
                             color: appTheme.darker(topPlaceHolder.textColor,150)
                             font.bold: true
                         }
                         Label{
-                            text: appRepo
+                            text: appSingleView.appRepo
                             color: appTheme.darker(topPlaceHolder.textColor,150)
                             width: parent.width
                             elide: Label.ElideMiddle
@@ -221,7 +221,7 @@ Page {
                         }
                         Label{
                             width: parent.width
-                            text: appNamespace
+                            text: appSingleView.appNameSpace
                             color: appTheme.darker(topPlaceHolder.textColor,150)
                             font.bold: true
                         }
@@ -346,6 +346,7 @@ Page {
     }
 
     function refreshDetails(){
+        console.log(appSingleView.appNameSpace);
         var rText = appJSONData["description"];
         var supportedOs = appJSONData["supportedOs"];
         rText = rText+"<br/><br/>"+"<b>Supported os: "+supportedOs.join()+"</b>";

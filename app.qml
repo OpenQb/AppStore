@@ -445,6 +445,7 @@ QbApp {
     }
 
     function addSingleAppView(name,namespace,version,repo){
+        //console.log(namespace);
         var item = appViewComponent.createObject(appStackView,{"appName":name,"appVersion":version,"appNameSpace":namespace,"appRepo":repo});
         appStackView.push(item);
     }
