@@ -7,6 +7,7 @@ import Qb.Core 1.0
 
 Page {
     id: appSingleView
+    clip: true
     property string appName: ""
     property string appVersion: ""
     property string appNameSpace: ""
@@ -72,8 +73,107 @@ Page {
         visible: !loading
         clip: true
         Material.background: "transparent"
-        Label{
-            id: appDescription
+
+        Column{
+            anchors.fill: parent
+
+            Item{
+                id: topPlaceHolder
+                width: parent.width
+                height: 200
+                property color textColor: appTheme.foreground
+                Image{
+                    id: appIconImage
+                    anchors.left: parent.left
+                    anchors.leftMargin: QbCoreOne.scale(5)
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: QbCoreOne.scale(150)
+                    smooth: true
+                    mipmap: true
+                    fillMode: Image.Image.PreserveAspectFit
+                    height: QbCoreOne.scale(150)
+                    source: "https://raw.githubusercontent.com/"+appRepo+"/"+appVersion+"/app.png"
+                }
+
+                Item{
+                    id: textPlaceHolder
+                    anchors.top: parent.top
+                    anchors.topMargin: (topPlaceHolder.height - appIconImage.height)/2.0
+                    anchors.left: appIconImage.right
+                    anchors.leftMargin: QbCoreOne.scale(5)
+                    anchors.right: parent.right
+                    height: appIconImage.height
+                    clip: true
+                    Column{
+                        anchors.fill: parent
+                        Label{
+                            text: appName
+                            color: topPlaceHolder.textColor
+                            width: parent.width
+                            font.bold: true
+                        }
+                        Label{
+                            width: parent.width
+                            text: appVersion
+                            color: appTheme.darker(topPlaceHolder.textColor,150)
+                            font.bold: true
+                        }
+                        Label{
+                            text: appRepo
+                            color: appTheme.darker(topPlaceHolder.textColor,150)
+                            width: parent.width
+                            elide: Label.ElideMiddle
+                            font.bold: true
+                        }
+                        Label{
+                            width: parent.width
+                            text: appNamespace
+                            color: appTheme.darker(topPlaceHolder.textColor,150)
+                            font.bold: true
+                        }
+
+                        Button{
+                            text: "DOWNLOAD"
+                            Material.background: appTheme.lighter(appTheme.primary,150)
+                        }
+
+                    }
+                }
+            }
+
+            Item{
+                id: middlePlaceHolder
+                width: parent.width
+                height: QbCoreOne.scale(300)
+                Flickable {
+                    clip: true
+                    anchors.fill: parent
+                    flickableDirection: Flickable.VerticalFlick
+                    pixelAligned: true
+                    contentHeight: appDescription.height
+                    contentWidth: parent.width
+                    TextEdit {
+                        id: appDescription
+                        width: parent.width
+                        clip: true
+                        textFormat: TextArea.RichText
+                        readOnly: true
+                        focus: false
+                        color: topPlaceHolder.textColor
+                        font.pixelSize: QbCoreOne.scale(15)
+                        text: QbCoreOne.credits()
+                        wrapMode: Text.Wrap
+                        activeFocusOnPress: false
+                        textMargin: 0
+                    }
+                }
+            }
+
+            Item{
+                id: bottomPlaceHolder
+                width: parent.width
+                height:  parent.height - topPlaceHolder.height - middlePlaceHolder.height
+            }
         }
     }
 
