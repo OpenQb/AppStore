@@ -250,7 +250,7 @@ function AppStoreDb()
             var dmap = this.getAppById(appIdList[i2]);
             if( dmap !== -1){
                 dmap["namespace"] = String(dmap["namespace"]);
-                var dl = dmap["repo"].split("/");
+                var dl = String(dmap["repo"]).split("/");
                 dmap["name"] = dl[dl.length-1];
                 dmap["repo"] = String(dmap["repo"]);
                 dmap["version"] = String(dmap["version"]);
