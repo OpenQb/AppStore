@@ -8,6 +8,7 @@ var engineObject;
 var appStackView;
 var appListView;
 var appUi;
+var appDownloadManagerUi;
 
 var ready = false;
 
@@ -58,10 +59,19 @@ function appList(genre)
 
 }
 
-function download(repo,version){
+function download(ns,repo,version){
     sendObject({
-                   "action":"downloadRepo",
-                   "data":[repo,version]
+                   "action":"download",
+                   "namespace":ns,
+                   "repo":repo,
+                   "version":version
+               });
+}
+
+function stop(ns){
+    sendObject({
+                   "action":"download:stop",
+                   "namespace":ns
                });
 }
 
@@ -150,7 +160,19 @@ function readyXEngineResult(data)
         }
     }
 
-
+    /*Interact with the DownloadManager UI*/
+    else if(json_data["action"] === "download:started"){
+        console.log(data)
+    }
+    else if(json_data["action"] === "download:finished"){
+        console.log(data)
+    }
+    else if(json_data["action"] === "download:progress"){
+        console.log(data)
+    }
+    else if(json_data["action"] === "download:error"){
+        console.log(data)
+    }
 
     else if(json_data["action"] === "heartbeat"){
         console.log(json_data["data"]);

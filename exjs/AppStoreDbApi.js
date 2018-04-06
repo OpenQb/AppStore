@@ -10,7 +10,7 @@ function AppStoreDbApi()
     var firstCommitHash = "f61d2ae7eb9206ff248bf5dbd49382f6b4fab418";
     var requestObject = new QbRequest();
     var dbObject = new AppStoreDb();
-    var soup = include("QbSoup::QbSoup");
+    //var soup = include("QbSoup::QbSoup");
 
     var action = "";
 

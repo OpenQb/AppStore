@@ -39,6 +39,7 @@ QbApp {
         LUiController.appStackView = appStackView;
         LUiController.fileObject = fileObject;
         LUiController.engineObject = engineObject;
+        LUiController.appDownloadManagerUi = appDownloadManagerUi;
         LUiController.setup();
     }
 
@@ -70,6 +71,9 @@ QbApp {
             translucencySource: appBackground
             backgroundColorOpacity: 0.7
         }
+
+        /***All Download Manager Methods will be here****/
+
     }
 
 
