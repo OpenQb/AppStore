@@ -424,6 +424,7 @@ QbApp {
                 Material.background: appTheme.accent
                 onClicked: {
                     appUi.close();
+                    //appUi.destroy();
                 }
             }
         }
