@@ -30,19 +30,19 @@ function startXEngine(p)
         engineObject.setPackageVariant(appUi.packageVariant());
         engineObject.setCodeFromFile(p);
         engineObject.start();
-//        if(fileObject){
-//            fileObject.setFileName(p);
-//            var code;
-//            if(fileObject.open("r")){
-//                code = fileObject.readAll();
-//                fileObject.close();
-//            }
-//            fileObject.setFileName("");
-//            if(code){
-//                engineObject.setCode("xengine",code);
-//                engineObject.start();
-//            }
-//        }
+        //        if(fileObject){
+        //            fileObject.setFileName(p);
+        //            var code;
+        //            if(fileObject.open("r")){
+        //                code = fileObject.readAll();
+        //                fileObject.close();
+        //            }
+        //            fileObject.setFileName("");
+        //            if(code){
+        //                engineObject.setCode("xengine",code);
+        //                engineObject.start();
+        //            }
+        //        }
     }
 }
 
@@ -53,11 +53,15 @@ function sendObject(o){
 function appList(genre)
 {
     sendObject({
-                    "action": "appList",
-                    "data" :[genre]
-                });
+                   "action": "appList",
+                   "data" :[genre]
+               });
 
 }
+
+
+
+var downloadList = [];
 
 function download(ns,repo,version){
     sendObject({
@@ -75,19 +79,33 @@ function stop(ns){
                });
 }
 
+
+function downloadApp(namespace,repo,version){
+    download(namespace,repo,version);
+}
+
+function isDownloading(namespace){
+    return downloadList.indexOf(namespace) !==-1;
+}
+
+function cancelDownload(namespace){
+    stop(namespace);
+}
+
+
 function search(genre,tag)
 {
     sendObject({
-                    "action": "search",
-                    "data" :[genre,tag]
-                });
+                   "action": "search",
+                   "data" :[genre,tag]
+               });
 }
 
 
 function startIndexing()
 {
     sendObject({
-               "action" : "indexing"
+                   "action" : "indexing"
                });
 }
 
@@ -121,8 +139,6 @@ function readyXEngineResult(data)
 
     else if(json_data["action"] === "search:started"){
         console.log("Search started");
-        //appListView.setModel([]);
-        //appListView.startLoadingProgress();
         appUi.showCurrentAppListViewLoadingScreen();
     }
     else if(json_data["action"] === "search:progress"){
@@ -133,10 +149,10 @@ function readyXEngineResult(data)
         console.log("Search finished");
         appUi.addModelToCurrentAppListView(json_data["data"]);
         //appListView.setModel(json_data["data"]);
-//        for(var i=0;i<json_data["data"].length;++i){
-//            console.log(Object.keys(json_data["data"][i]));
-//        }
-//        /appListView.stopLoadingProgress();
+        //        for(var i=0;i<json_data["data"].length;++i){
+        //            console.log(Object.keys(json_data["data"][i]));
+        //        }
+        //        /appListView.stopLoadingProgress();
     }
 
 
@@ -162,17 +178,26 @@ function readyXEngineResult(data)
 
     /*Interact with the DownloadManager UI*/
     else if(json_data["action"] === "download:started"){
-        console.log(data)
+        console.log(data);
+        downloadList.push(json_data["namespace"]);
+
     }
     else if(json_data["action"] === "download:finished"){
-        console.log(data)
+        console.log(data);
+        var i = downloadList.indexOf(json_data["namespace"]);
+        if(i!==-1) delete downloadList[i];
     }
     else if(json_data["action"] === "download:progress"){
-        console.log(data)
+        console.log(data);
     }
     else if(json_data["action"] === "download:error"){
         console.log(data)
+        var i = downloadList.indexOf(json_data["namespace"]);
+        if(i!==-1) delete downloadList[i];
     }
+    /*end*/
+
+
 
     else if(json_data["action"] === "heartbeat"){
         console.log(json_data["data"]);
@@ -180,20 +205,6 @@ function readyXEngineResult(data)
     else{
         console.log(data)
     }
-}
-
-
-function downloadApp(namespace,repo,version){
-
-}
-
-function isDownloading(namespace){
-
-    return false;
-}
-
-function cancelDownload(namespace){
-
 }
 
 

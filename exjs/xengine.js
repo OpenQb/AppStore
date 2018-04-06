@@ -19,6 +19,7 @@ function uniq_fast(a) {
 
 load("AppStoreDbApi.js");
 
+
 function SpecialDict(){
     var primary = [];
     var secondary = [];
@@ -34,24 +35,34 @@ function SpecialDict(){
     }
 
     this.keyToValue = function(k){
+        if(primary.length !== secondary.length) return;
         var i = primary.indexOf(k);
         return secondary[i];
     }
 
     this.valueToKey = function(v){
+        if(primary.length !== secondary.length) return;
         var i = secondary.indexOf(v);
         return primary[i];
     }
 
     this.removeByKey = function(k){
         var i = primary.indexOf(k);
-        delete primary[i];
-        delete secondary[i];
+        try{
+            delete primary[i];
+            delete secondary[i];
+        }
+        catch(e){}
     }
+
     this.removeByValue = function(v){
         var i = secondary.indexOf(v);
-        delete primary[i];
-        delete secondary[i];
+        try{
+            delete primary[i];
+            delete secondary[i];
+        }
+        catch(e){
+        }
     }
 }
 
@@ -73,39 +84,71 @@ function QbDownloadManager(){
     var sendDownloadFinished = function(ns,path){
         sendObject({"action":"download:finished","namespace":ns,"path":path});
     };
-    var sendDownloadProgress = function(ns,progress){
-        sendObject({"action":"download:progress","namespace":ns,"progress":progress});
+    var sendDownloadProgress = function(ns,progress,total){
+        sendObject({"action":"download:progress","namespace":ns,"progress":progress,"total":total});
     };
     var sendDownloadError = function(ns,message){
         sendObject({"action":"download:error","namespace":ns,"message":message});
     };
 
+    var downloadUrl = function(repo,version){
+        var u = "https://codeload.github.com/"+repo+"/legacy.zip/"+version;
+        return u;
+    };
 
     var resultReady = function(rid,result){
+        var ns = ridToNsMap.keyToValue(rid);
+        var saveAs = pathObject.download()+"/"+ns+".zip";
+        var jdata = JSON.parse(result);
+        if(jdata["status_code"] === 200){
+            sendDownloadFinished(ns,saveAs);
+        }
+        else{
+            sendDownloadError(ns,"Error code:"+jdata["status_code"]);
+        }
     };
     var downloadProgress = function(rid,bytesReceived,bytesTotal){
-
+        //log("downloadProgress");
+        //log(rid);
+        //log(bytesReceived);
+        //log(bytesTotal);
+        var ns = ridToNsMap.keyToValue(rid);
+        sendDownloadProgress(ns,bytesReceived,bytesTotal);
     };
-    var error = function(error){
 
-    };
+    requestObject.onResultReady.connect(resultReady);
+    requestObject.onDownloadProgress.connect(downloadProgress);
 
 
     this.download = function(ns,repo,version){
+        //log("download");
+        var url = downloadUrl(repo,version);
+        var saveAs = pathObject.download()+"/"+ns+".zip";
+        //log(url);
+        //log(saveAs);
 
-    }
+        var args = {"saveAs":saveAs};
+        var rmap = requestObject.get(url,args);
+        var rid = rmap["rid"];
+
+        sendDownloadStarted(ns);
+
+        //log("RID: "+rid);
+        ridToNsMap.push(rid,ns);
+    };
 
     this.stop = function(ns){
-
-    }
-}
+        var rid = ridToNsMap.valueToKey(ns);
+        requestObject.stop(rid);
+    };
+};
 
 
 
 var readySignalSent = false;
-var downloadManager = new QbDownloadManager();
 var dbApiObject = new AppStoreDbApi();
 var counter = 30*2;
+var downloadManager = new QbDownloadManager();
 
 var _onMessageReceived = function(data)
 {
@@ -124,6 +167,7 @@ var _onMessageReceived = function(data)
         dbApiObject.search(json_data["data"][0],json_data["data"][1]);
     }
 
+
     else if(json_data["action"] === "download"){
         downloadManager.download(json_data["namespace"],json_data["repo"],json_data["version"]);
     }
@@ -133,6 +177,7 @@ var _onMessageReceived = function(data)
     else if(json_data["action"] === "download:stop"){
         downloadManager.stop(json_data["namespace"]);
     }
+
 
     else if(json_data["action"] === "indexing"){
         dbApiObject.startIndexing();
@@ -150,7 +195,6 @@ while(loopable()){
         sendMessage(JSON.stringify({"action":"ready"}));
         readySignalSent = true;
     }
-
     sleep(500);
     dbApiObject.heartbeat();
 
@@ -159,8 +203,8 @@ while(loopable()){
                        "action":"heartbeat",
                        "data":"["+ new Date()+ "] XEngine is running."
                    });
-
         counter = 0;
     }
+
     counter = counter+1;
 }

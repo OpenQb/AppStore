@@ -183,6 +183,18 @@ Page {
             horizontalAlignment: Label.AlignHCenter
             text: appName
         }
+
+        ToolButton{
+            id: showDownloadManagerButton
+            width: QbCoreOne.scale(50)
+            height: QbCoreOne.scale(50)
+            text: QbMF3.icon("mf-file_download")
+            font.family: QbMF3.family
+            anchors.right: parent.right
+            onClicked: {
+                appDownloadManagerUi.open()
+            }
+        }
     }
 
     Page{
