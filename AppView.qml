@@ -46,6 +46,7 @@ Page {
         modal: true
         focus: true
         topPadding: 0
+        dim: false
         bottomPadding: 0
         rightPadding: 0
         leftPadding: 0
