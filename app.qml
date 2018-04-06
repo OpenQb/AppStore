@@ -13,14 +13,14 @@ QbApp {
 
     onAppClosing: {
         try{
-            appDownloadManagerUi.close();
+            //appDownloadManagerUi.close();
             appDownloadManagerUi.destroy();
         }
         catch(e){
         }
 
         try{
-            menuDrawer.close();
+            //menuDrawer.close();
             menuDrawer.destroy();
         }
         catch(e){
