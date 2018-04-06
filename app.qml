@@ -225,6 +225,7 @@ QbApp {
 
         Column{
             anchors.fill: parent
+            spacing: 0
             TabBar{
                 id: menuDrawerTabBar
                 width: parent.width
