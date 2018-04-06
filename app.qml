@@ -203,7 +203,7 @@ QbApp {
     Rectangle{
         id: statusBarPlaceHolder
         width: parent.width
-        height: Qt.platform.os === "android"?QbCoreOne.scale(25):1
+        height: Qt.platform.os === "android"?1:1
         visible: true
         color: appTheme.background
     }
