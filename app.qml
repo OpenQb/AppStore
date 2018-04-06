@@ -40,6 +40,9 @@ QbApp {
         LUiController.fileObject = fileObject;
         LUiController.engineObject = engineObject;
         LUiController.appDownloadManagerUi = appDownloadManagerUi;
+        LUiController.appStorage = appStorage;
+        LUiController.qbCoreOne = QbCoreOne;
+
         LUiController.setup();
     }
 

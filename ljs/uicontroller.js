@@ -9,8 +9,10 @@ var appStackView;
 var appListView;
 var appUi;
 var appDownloadManagerUi;
-
+var downloadList = [];
 var ready = false;
+var appStorage;
+var qbCoreOne;
 
 function setup()
 {
@@ -58,10 +60,6 @@ function appList(genre)
                });
 
 }
-
-
-
-var downloadList = [];
 
 function download(ns,repo,version){
     sendObject({
@@ -183,9 +181,19 @@ function readyXEngineResult(data)
 
     }
     else if(json_data["action"] === "download:finished"){
-        console.log(data);
-        var i = downloadList.indexOf(json_data["namespace"]);
-        if(i!==-1) delete downloadList[i];
+        //console.log(data);
+        try{
+            var i = downloadList.indexOf(json_data["namespace"]);
+            if(i!==-1) delete downloadList[i];
+            var saveAs = json_data["path"];
+            console.log(saveAs);
+            if(appStorage.installApp(saveAs)){
+                qbCoreOne.reload();
+            }
+        }
+        catch(e){
+            console.log("Download finished with exception "+e);
+        }
     }
     else if(json_data["action"] === "download:progress"){
         console.log(data);

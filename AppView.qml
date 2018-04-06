@@ -365,6 +365,7 @@ Page {
     function removeApp(){
         if(appStorage.removeApp(appSingleView.appNameSpace)){
             messageDialog.openWithMessage(appSingleView.appName+" Removed")
+            LUiController.qbCoreOne.reload();
         }
         else{
             messageDialog.openWithMessage("Failed to remove "+appSingleView.appName)
@@ -380,6 +381,7 @@ Page {
     }
 
     function isCurrentOsSupported(lst){
+        if(lst === undefined) return false;
         return lst.indexOf(Qt.platform.os) !== -1;
     }
 
@@ -485,6 +487,7 @@ Page {
                     loadingProgress.currentIndex = counter;
                 }
             }
+            downloadButtonUpdate();
         }
     }
 
