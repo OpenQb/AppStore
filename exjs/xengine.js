@@ -77,18 +77,18 @@ function QbDownloadManager(){
     var ridToNsMap = new SpecialDict();
 
 
-    var sendDownloadStarted = function(ns){
-        sendObject({"action":"download:started","namespace":ns});
+    var sendDownloadStarted = function(ns,uindex){
+        sendObject({"action":"download:started","namespace":ns,"uindex":uindex});
 
     };
-    var sendDownloadFinished = function(ns,path){
-        sendObject({"action":"download:finished","namespace":ns,"path":path});
+    var sendDownloadFinished = function(ns,path,uindex){
+        sendObject({"action":"download:finished","namespace":ns,"path":path,"uindex":uindex});
     };
-    var sendDownloadProgress = function(ns,progress,total){
-        sendObject({"action":"download:progress","namespace":ns,"progress":progress,"total":total});
+    var sendDownloadProgress = function(ns,progress,total,uindex){
+        sendObject({"action":"download:progress","namespace":ns,"progress":progress,"total":total,"uindex":uindex});
     };
-    var sendDownloadError = function(ns,message){
-        sendObject({"action":"download:error","namespace":ns,"message":message});
+    var sendDownloadError = function(ns,message,uindex){
+        sendObject({"action":"download:error","namespace":ns,"message":message,"uindex":uindex});
     };
 
     var downloadUrl = function(repo,version){
@@ -97,14 +97,20 @@ function QbDownloadManager(){
     };
 
     var resultReady = function(rid,result){
+        var uindex = nsMap[rid];
         var ns = ridToNsMap.keyToValue(rid);
         var saveAs = pathObject.download()+"/"+ns+".zip";
         var jdata = JSON.parse(result);
         if(jdata["status_code"] === 200){
-            sendDownloadFinished(ns,saveAs);
+            sendDownloadFinished(ns,saveAs,uindex);
         }
         else{
-            sendDownloadError(ns,"Error code:"+jdata["status_code"]);
+            sendDownloadError(ns,"Error code:"+jdata["status_code"],uindex);
+        }
+        try{
+            delete nsMap[rid];
+        }
+        catch(e){
         }
     };
     var downloadProgress = function(rid,bytesReceived,bytesTotal){
@@ -112,16 +118,19 @@ function QbDownloadManager(){
         //log(rid);
         //log(bytesReceived);
         //log(bytesTotal);
+        var uindex = nsMap[rid];
+        //log(uindex);
         var ns = ridToNsMap.keyToValue(rid);
-        sendDownloadProgress(ns,bytesReceived,bytesTotal);
+        sendDownloadProgress(ns,bytesReceived,bytesTotal,uindex);
     };
 
     requestObject.onResultReady.connect(resultReady);
     requestObject.onDownloadProgress.connect(downloadProgress);
 
 
-    this.download = function(ns,repo,version){
+    this.download = function(ns,repo,version,uindex){
         //log("download");
+        //log(uindex);
         var url = downloadUrl(repo,version);
         var saveAs = pathObject.download()+"/"+ns+".zip";
         //log(url);
@@ -131,8 +140,8 @@ function QbDownloadManager(){
         var rmap = requestObject.get(url,args);
         var rid = rmap["rid"];
 
-        sendDownloadStarted(ns);
-
+        nsMap[rid] = uindex;
+        sendDownloadStarted(ns,uindex);
         //log("RID: "+rid);
         ridToNsMap.push(rid,ns);
     };
@@ -169,7 +178,7 @@ var _onMessageReceived = function(data)
 
 
     else if(json_data["action"] === "download"){
-        downloadManager.download(json_data["namespace"],json_data["repo"],json_data["version"]);
+        downloadManager.download(json_data["namespace"],json_data["repo"],json_data["version"],json_data["uindex"]);
     }
     else if(json_data["action"] === "download:cancel"){
         downloadManager.stop(json_data["namespace"]);

@@ -358,7 +358,8 @@ Page {
     }
 
     function downloadApp(){
-        LUiController.downloadApp(appSingleView.appNameSpace,
+        LUiController.downloadApp(appSingleView.appName,
+                                  appSingleView.appNameSpace,
                                   appSingleView.appRepo,
                                   appSingleView.appVersion);
     }

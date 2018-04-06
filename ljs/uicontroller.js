@@ -9,6 +9,7 @@ var appStackView;
 var appListView;
 var appUi;
 var appDownloadManagerUi;
+var appDownloadManagerModel;
 var downloadList = [];
 var ready = false;
 var appStorage;
@@ -61,12 +62,14 @@ function appList(genre)
 
 }
 
-function download(ns,repo,version){
+function download(name,ns,repo,version,uindex){
     sendObject({
                    "action":"download",
                    "namespace":ns,
+                   "name":name,
                    "repo":repo,
-                   "version":version
+                   "version":version,
+                   "uindex":uindex
                });
 }
 
@@ -78,8 +81,20 @@ function stop(ns){
 }
 
 
-function downloadApp(namespace,repo,version){
-    download(namespace,repo,version);
+function downloadApp(name,namespace,repo,version){
+    appDownloadManagerModel.append(
+                {
+                    "name":name,
+                    "namespace":namespace,
+                    "repo":repo,
+                    "version":version,
+                    "isDownloading":true,
+                    "msg":"",
+                    "totalReceived": "O KB"
+                }
+                );
+
+    download(name,namespace,repo,version,appDownloadManagerModel.count-1);
 }
 
 function isDownloading(namespace){
@@ -107,8 +122,15 @@ function startIndexing()
                });
 }
 
+function findIndex(ns) {
+    for(var i = 0; i < appDownloadManagerModel.count; ++i) if (appDownloadManagerModel.get(i)["namespace"] === ns) return i;
+    return -1;
+}
+
 function readyXEngineResult(data)
 {
+    var i;
+    var index;
     var json_data = {};
     try{
         json_data = JSON.parse(data);
@@ -176,17 +198,23 @@ function readyXEngineResult(data)
 
     /*Interact with the DownloadManager UI*/
     else if(json_data["action"] === "download:started"){
-        console.log(data);
+        //console.log(data);
+        //var index = json_data["uindex"];
         downloadList.push(json_data["namespace"]);
 
     }
     else if(json_data["action"] === "download:finished"){
         //console.log(data);
         try{
-            var i = downloadList.indexOf(json_data["namespace"]);
+            i = downloadList.indexOf(json_data["namespace"]);
             if(i!==-1) delete downloadList[i];
             var saveAs = json_data["path"];
-            console.log(saveAs);
+            //console.log(saveAs);
+            index = json_data["uindex"];
+            //console.log("Uindex: "+index);
+            if(index!==-1){
+                appDownloadManagerModel.set(index,{"isDownloading":false});
+            }
             if(appStorage.installApp(saveAs)){
                 qbCoreOne.reload();
             }
@@ -196,12 +224,23 @@ function readyXEngineResult(data)
         }
     }
     else if(json_data["action"] === "download:progress"){
-        console.log(data);
+        var ns = json_data["namespace"];
+        var progress = json_data["progress"];
+        var tr = parseFloat(progress/1024).toFixed(2) + " KB";
+        index = json_data["uindex"];
+        if(index!==-1){
+            appDownloadManagerModel.set(index,{"totalReceived":tr});
+        }
+
     }
     else if(json_data["action"] === "download:error"){
         console.log(data)
         var i = downloadList.indexOf(json_data["namespace"]);
         if(i!==-1) delete downloadList[i];
+        var index = json_data["uindex"];
+        if(index!==-1){
+            appDownloadManagerModel.set(index,{"isDownloading":false});
+        }
     }
     /*end*/
 

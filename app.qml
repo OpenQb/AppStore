@@ -19,6 +19,10 @@ QbApp {
         id: appStorage
     }
 
+    ListModel{
+        id: appDownloadManagerModel
+    }
+
     Image {
         id: appBackground
         anchors.fill: parent
@@ -30,6 +34,19 @@ QbApp {
     }
 
     Component.onCompleted: {
+        /*dummy test data*/
+//        appDownloadManagerModel.append(
+//                    {
+//                        "name":"2048",
+//                        "namespace":"com.github.com",
+//                        "repo":"mkawserm/2048",
+//                        "version":"1.0.5",
+//                        "isDownloading":true,
+//                        "msg":"",
+//                        "totalReceived": "O KB"
+//                    }
+//                    );
+
         /* setting up everything */
         var backGroundImage = String(appUi.getDefaultBackgroundImageURL());
         appTheme.setImageFromPath(backGroundImage.substring(3,backGroundImage.length));
@@ -40,6 +57,7 @@ QbApp {
         LUiController.fileObject = fileObject;
         LUiController.engineObject = engineObject;
         LUiController.appDownloadManagerUi = appDownloadManagerUi;
+        LUiController.appDownloadManagerModel = appDownloadManagerModel;
         LUiController.appStorage = appStorage;
         LUiController.qbCoreOne = QbCoreOne;
 
@@ -66,15 +84,117 @@ QbApp {
         height: parent.height*0.90
         modal: true
         focus: true
-        topPadding: 0
-        bottomPadding: 0
-        rightPadding: 0
-        leftPadding: 0
+        topPadding: QbCoreOne.scale(10)
+        bottomPadding: QbCoreOne.scale(10)
+        rightPadding: QbCoreOne.scale(10)
+        leftPadding: QbCoreOne.scale(10)
         background: TranslucentGlass{
             translucencySource: appBackground
             backgroundColorOpacity: 0.7
         }
 
+        ListView{
+            clip: true
+            anchors.fill: parent
+            model: appDownloadManagerModel
+
+            delegate: Item{
+                width: parent.width
+                height: QbCoreOne.scale(100)
+                Rectangle{
+                    anchors.fill: parent
+                    color: "transparent"
+                    border.width: QbCoreOne.scale(1)
+                    border.color: topPlaceHolder.textColor
+                    radius: QbCoreOne.scale(5)
+                    Item{
+                        id: topPlaceHolder
+                        width: parent.width
+                        height: parent.height
+                        anchors.top: parent.top
+                        anchors.topMargin: QbCoreOne.scale(10)
+                        property color textColor: appTheme.foreground
+                        Image{
+                            id: appIconImage
+                            anchors.left: parent.left
+                            anchors.leftMargin: QbCoreOne.scale(5)
+                            //anchors.verticalCenter: parent.verticalCenter
+                            width: QbCoreOne.scale(64)
+                            smooth: true
+                            mipmap: true
+                            fillMode: Image.PreserveAspectFit
+                            height: QbCoreOne.scale(64)
+                            source: "https://raw.githubusercontent.com/"+repo+"/"+version+"/app.png"
+                        }
+
+                        Item{
+                            id: textPlaceHolder
+                            anchors.top: parent.top
+                            anchors.left: appIconImage.right
+                            anchors.leftMargin: QbCoreOne.scale(5)
+                            anchors.right: parent.right
+                            height: parent.height
+                            clip: true
+                            Column{
+                                anchors.fill: parent
+                                Label{
+                                    text: name
+                                    color: topPlaceHolder.textColor
+                                    width: parent.width
+                                    font.bold: true
+                                }
+                                Label{
+                                    width: parent.width
+                                    text: version
+                                    color: appTheme.darker(topPlaceHolder.textColor,150)
+                                    font.bold: true
+                                }
+                                Label{
+                                    text: repo
+                                    color: appTheme.darker(topPlaceHolder.textColor,150)
+                                    width: parent.width
+                                    elide: Label.ElideMiddle
+                                    font.bold: true
+                                }
+                                Label{
+                                    width: parent.width
+                                    text: namespace
+                                    color: appTheme.darker(topPlaceHolder.textColor,150)
+                                    font.bold: true
+                                }
+                                Row{
+                                    width: parent.width
+                                    spacing: QbCoreOne.scale(10)
+                                    Label{
+                                        id: spinnerLabel
+                                        width: QbCoreOne.scale(15)
+                                        height: QbCoreOne.scale(15)
+                                        //anchors.left: parent.left
+                                        font.family: QbFA.family
+                                        text: QbFA.icon("fa-spinner")
+                                        font.pixelSize: width
+                                        visible: isDownloading
+                                        RotationAnimation on rotation {
+                                            loops: Animation.Infinite
+                                            running: isDownloading
+                                            duration: 1000
+                                            from: 0
+                                            to: 360
+                                        }
+                                    }
+                                    Label{
+                                        width: parent.width - spinnerLabel.width
+                                        text: totalReceived
+                                        font.bold: false
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
         /***All Download Manager Methods will be here****/
 
     }
