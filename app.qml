@@ -11,6 +11,23 @@ import "ljs/uicontroller.js" as LUiController
 QbApp {
     id: appUi
 
+    onAppClosing: {
+        try{
+            appDownloadManagerUi.close();
+            appDownloadManagerUi.destroy();
+        }
+        catch(e){
+        }
+
+        try{
+            menuDrawer.close();
+            menuDrawer.destroy();
+        }
+        catch(e){
+        }
+
+    }
+
     QbMetaTheme{
         id: appTheme
     }
@@ -35,17 +52,17 @@ QbApp {
 
     Component.onCompleted: {
         /*dummy test data*/
-//        appDownloadManagerModel.append(
-//                    {
-//                        "name":"2048",
-//                        "namespace":"com.github.com",
-//                        "repo":"mkawserm/2048",
-//                        "version":"1.0.5",
-//                        "isDownloading":true,
-//                        "msg":"",
-//                        "totalReceived": "O KB"
-//                    }
-//                    );
+        //        appDownloadManagerModel.append(
+        //                    {
+        //                        "name":"2048",
+        //                        "namespace":"com.github.com",
+        //                        "repo":"mkawserm/2048",
+        //                        "version":"1.0.5",
+        //                        "isDownloading":true,
+        //                        "msg":"",
+        //                        "totalReceived": "O KB"
+        //                    }
+        //                    );
 
         /* setting up everything */
         var backGroundImage = String(appUi.getDefaultBackgroundImageURL());
