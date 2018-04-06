@@ -200,19 +200,19 @@ QbApp {
     }
 
 
-//    Rectangle{
-//        id: statusBarPlaceHolder
-//        width: parent.width
-//        height: Qt.platform.os === "android"?0:0
-//        visible: true
-//        color: appTheme.background
-//    }
+    Rectangle{
+        id: statusBarPlaceHolder
+        width: parent.width
+        height: Qt.platform.os === "android"?QbCoreOne.scale(25):1
+        visible: true
+        color: appTheme.background
+    }
 
     Drawer {
         id: menuDrawer
         width: Math.min(0.66 * appListView.width,400)
         height: parent.height
-        //y: statusBarPlaceHolder.height
+        y: statusBarPlaceHolder.height
         clip: true
         background: TranslucentGlass{
             translucencySource: appBackground
@@ -249,7 +249,7 @@ QbApp {
             SwipeView{
                 id: menuDrawerSwipeView
                 width: parent.width
-                height: parent.height - menuDrawerTabBar.height
+                height: parent.height - menuDrawerTabBar.height - exitButton.height
                 currentIndex: menuDrawerTabBar.currentIndex
                 interactive: false
                 clip: true
@@ -420,6 +420,18 @@ QbApp {
                         }
 
                     }
+                }//CategoryList
+
+            }//SwipeView
+
+            //bottom menu
+            Button{
+                id: exitButton
+                width: parent.width
+                text: "EXIT"
+                Material.background: appTheme.accent
+                onClicked: {
+                    appUi.close();
                 }
             }
         }
