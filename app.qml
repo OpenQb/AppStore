@@ -101,6 +101,7 @@ QbApp {
         height: parent.height*0.90
         modal: true
         focus: true
+        dim: false
         topPadding: QbCoreOne.scale(10)
         bottomPadding: QbCoreOne.scale(10)
         rightPadding: QbCoreOne.scale(10)
@@ -222,6 +223,7 @@ QbApp {
         height: parent.height
         y: 0
         clip: true
+        dim: false
         background: TranslucentGlass{
             translucencySource: appBackground
             backgroundColor: appTheme.background
