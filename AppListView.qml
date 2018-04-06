@@ -131,10 +131,10 @@ Page {
 
             TextField{
                 anchors.top: parent.top
-                anchors.horizontalCenter: parent.horizontalCenter
+                //anchors.horizontalCenter: parent.horizontalCenter
                 opacity: 0
                 visible: false
-                anchors.left: backButton.right
+                anchors.left: backButton.visible?backButton.right:menuButton.right
                 anchors.right: searchButton.left
                 id: searchField
                 //width: parent.width*0.50
