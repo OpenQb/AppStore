@@ -134,6 +134,7 @@ Page {
                 anchors.horizontalCenter: parent.horizontalCenter
                 opacity: 0
                 visible: false
+                anchors.right: searchButton.left
                 id: searchField
                 width: parent.width*0.40
                 height: parent.height

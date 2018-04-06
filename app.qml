@@ -200,19 +200,19 @@ QbApp {
     }
 
 
-    Rectangle{
-        id: statusBarPlaceHolder
-        width: parent.width
-        height: Qt.platform.os === "android"?0:0
-        visible: true
-        color: appTheme.background
-    }
+//    Rectangle{
+//        id: statusBarPlaceHolder
+//        width: parent.width
+//        height: Qt.platform.os === "android"?0:0
+//        visible: true
+//        color: appTheme.background
+//    }
 
     Drawer {
         id: menuDrawer
         width: Math.min(0.66 * appListView.width,400)
-        height: parent.height - statusBarPlaceHolder.height
-        y: statusBarPlaceHolder.height
+        height: parent.height
+        //y: statusBarPlaceHolder.height
         clip: true
         background: TranslucentGlass{
             translucencySource: appBackground
