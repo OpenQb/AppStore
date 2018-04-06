@@ -134,9 +134,10 @@ Page {
                 anchors.horizontalCenter: parent.horizontalCenter
                 opacity: 0
                 visible: false
+                anchors.left: backButton.right
                 anchors.right: searchButton.left
                 id: searchField
-                width: parent.width*0.40
+                //width: parent.width*0.50
                 height: parent.height
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
