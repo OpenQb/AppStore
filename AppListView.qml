@@ -137,6 +137,7 @@ Page {
                 anchors.left: backButton.visible?backButton.right:menuButton.right
                 anchors.right: searchButton.left
                 id: searchField
+                inputMethodHints: Qt.ImhNoPredictiveText
                 //width: parent.width*0.50
                 height: parent.height
                 verticalAlignment: Text.AlignVCenter
