@@ -118,7 +118,7 @@ QbApp {
 
             delegate: Item{
                 width: parent.width
-                height: QbCoreOne.scale(100)
+                height: QbCoreOne.scale(150)
                 Rectangle{
                     anchors.fill: parent
                     color: "transparent"
