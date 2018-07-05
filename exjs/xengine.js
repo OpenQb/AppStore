@@ -197,23 +197,9 @@ var _onMessageReceived = function(data)
 };
 
 onMessageReceived(_onMessageReceived);
-
-while(loopable()){
-
-    if(!readySignalSent){
-        sendMessage(JSON.stringify({"action":"ready"}));
-        readySignalSent = true;
-    }
-    sleep(500);
-    dbApiObject.heartbeat();
-
-    if(counter === 30*2){
-        sendObject({
-                       "action":"heartbeat",
-                       "data":"["+ new Date()+ "] XEngine is running."
-                   });
-        counter = 0;
-    }
-
-    counter = counter+1;
-}
+sendMessage(JSON.stringify({"action":"ready"}));
+sendObject({
+               "action":"heartbeat",
+               "data":"["+ new Date()+ "] XEngine is running."
+           });
+QbJSEngineObject.loop();

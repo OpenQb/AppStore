@@ -25,7 +25,7 @@ QbApp {
         }
         catch(e){
         }
-
+        engineObject.stop();
     }
 
     QbMetaTheme{
