@@ -30,12 +30,7 @@ Page {
         anchors.top: parent.top
         width: parent.width
         height: QbCoreOne.scale(50)
-        background: TranslucentGlass{
-            translucencySource: appBackground
-            backgroundColor: appTheme.background
-            backgroundColorOpacity: 0.9
-            itemRadious: 0//QbCoreOne.scale(10)
-        }
+        Material.background: appTheme.primary
         Item{
             id: contentPlaceHolder
             anchors.bottom: parent.bottom

@@ -163,6 +163,7 @@ Page {
         anchors.top:parent.top
         anchors.left: parent.left
         anchors.right: parent.right
+        Material.background: appTheme.primary
         //Material.background: "transparent"
 
         ToolButton{

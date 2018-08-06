@@ -1,2 +1,6 @@
 
 *.user
+
+*.qmlc
+
+*.jsc

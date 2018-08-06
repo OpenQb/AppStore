@@ -99,7 +99,7 @@ function QbDownloadManager(){
     var resultReady = function(rid,result){
         var uindex = nsMap[rid];
         var ns = ridToNsMap.keyToValue(rid);
-        var saveAs = pathObject.download()+"/"+ns+".zip";
+        var saveAs = pathObject.downloads()+"/"+ns+".zip";
         var jdata = JSON.parse(result);
         if(jdata["status_code"] === 200){
             sendDownloadFinished(ns,saveAs,uindex);
@@ -132,7 +132,7 @@ function QbDownloadManager(){
         //log("download");
         //log(uindex);
         var url = downloadUrl(repo,version);
-        var saveAs = pathObject.download()+"/"+ns+".zip";
+        var saveAs = pathObject.downloads()+"/"+ns+".zip";
         //log(url);
         //log(saveAs);
 
