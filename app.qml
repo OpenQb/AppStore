@@ -106,10 +106,11 @@ QbApp {
         bottomPadding: QbCoreOne.scale(10)
         rightPadding: QbCoreOne.scale(10)
         leftPadding: QbCoreOne.scale(10)
-        background: TranslucentGlass{
-            translucencySource: appBackground
-            backgroundColorOpacity: 0.7
-        }
+        background: Rectangle{color:"black"}
+        //TranslucentGlass{
+        //    translucencySource: appBackground
+        //    backgroundColorOpacity: 0.7
+        //}
 
         ListView{
             clip: true
@@ -224,14 +225,15 @@ QbApp {
         y: 0
         clip: true
         dim: false
-        background: TranslucentGlass{
-            translucencySource: appBackground
-            backgroundColor: appTheme.background
-            backgroundColorOpacity: 1
-            blurOpacity: 0.9
-            blurRadious: 20
-            itemRadious: 0//QbCoreOne.scale(10)
-        }
+        background: Rectangle{color:"black"}
+        //TranslucentGlass{
+        //    translucencySource: appBackground
+        //    backgroundColor: appTheme.background
+        //    backgroundColorOpacity: 1
+        //    blurOpacity: 0.9
+        //    blurRadious: 20
+        //    itemRadious: 0//QbCoreOne.scale(10)
+        //}
 
         Column{
             anchors.fill: parent
