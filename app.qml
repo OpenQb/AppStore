@@ -4,7 +4,7 @@ import QtQuick 2.11
 
 ZSOneAppUi{
     id: objMainAppUi
-    //dockLogo: objMainAppUi.absoluteURL("/app.svg")
+    dockLogo: objMainAppUi.absoluteURL("/app.svg")
     changeWindowPosition: true
 
     QbSettings{
