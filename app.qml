@@ -14,6 +14,8 @@ QbApp{
     minimumWidth: 500
     property string customSQ: "SELECT TagRelation.appid,Apps.namespace,Apps.repo,Apps.version FROM TagList,TagRelation,Apps WHERE TagRelation.tagid LIKE TagList.id AND TagRelation.appid LIKE Apps.id AND TagList.tag LIKE '%%' GROUP BY appid";
 
+    KeyNavigation.tab: objSearchField
+
     QbSettings{
         id: objSettings
         name: "AppStore"
@@ -237,6 +239,7 @@ QbApp{
                     onTextChanged: {
                         objMainAppUi.search(objSearchField.text);
                     }
+                    KeyNavigation.tab: objCVContentGrid
                 }
 
             }//End SearchBar
@@ -262,6 +265,8 @@ QbApp{
                         cellWidth: QbCoreOne.scale(150)
                         cellHeight: QbCoreOne.scale(180)
                         model: objSqlSM
+                        currentIndex: 0
+                        KeyNavigation.tab: objSearchField
                         delegate: Item{
                             width: objCVContentGrid.cellWidth
                             height: objCVContentGrid.cellHeight
@@ -271,7 +276,9 @@ QbApp{
                             property string _version: String(VERSION)
                             property string _namespace: String(NAMESPACE)
                             Rectangle{
-                                color: "white"
+                                color: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?"white":"white"
+                                border.width: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?QbCoreOne.scale(3):0
+                                border.color: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?"grey":"transparent"
                                 width: QbCoreOne.scale(145)
                                 height: QbCoreOne.scale(175)
                                 anchors.centerIn: parent
