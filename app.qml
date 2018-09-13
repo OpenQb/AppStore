@@ -259,8 +259,8 @@ QbApp{
                     //SearchContent will go there
                     GridView{
                         id: objCVContentGrid
-                        cellWidth: parent.width
-                        cellHeight: QbCoreOne.scale(100)
+                        cellWidth: QbCoreOne.scale(150)
+                        cellHeight: QbCoreOne.scale(180)
                         model: objSqlSM
                         delegate: Item{
                             width: objCVContentGrid.cellWidth
@@ -270,15 +270,12 @@ QbApp{
                             property string _repo: String(REPO)
                             property string _version: String(VERSION)
                             property string _namespace: String(NAMESPACE)
-
                             Rectangle{
-                                color: "transparent"
-                                border.width: 3
-                                border.color: "grey"
-                                radius: 5
+                                color: "white"
+                                width: QbCoreOne.scale(145)
+                                height: QbCoreOne.scale(175)
                                 anchors.centerIn: parent
-                                width: parent.width*0.90
-                                height: parent.height*0.90
+                                radius: QbCoreOne.scale(5)
 
                                 Image{
                                     id: _objAppImage
@@ -288,7 +285,7 @@ QbApp{
                                     anchors.top: parent.top
                                     anchors.topMargin: QbCoreOne.scale(5)
 
-                                    width: objCVContentGrid.cellHeight *0.80
+                                    width: QbCoreOne.scale(64)
                                     height: width
 
                                     sourceSize.width: width
@@ -311,18 +308,50 @@ QbApp{
 
                                 Item{
                                     id: _objTextBlock
-                                    anchors.top: parent.top
+                                    anchors.top: _objAppImage.bottom
                                     anchors.topMargin: QbCoreOne.scale(5)
-                                    anchors.left: _objAppImage.right
+
+                                    anchors.left: parent.left
                                     anchors.leftMargin: QbCoreOne.scale(5)
+
+                                    anchors.right: parent.right
+                                    anchors.rightMargin: QbCoreOne.scale(5)
+
                                     anchors.bottom: parent.bottom
                                     Text{
-                                        anchors.fill: parent
-                                        text: "<b>"+_name+"</b><br/>"+_namespace+"<br/>"+_version
+                                        id: _objName
+                                        anchors.top: parent.top
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        text: "<b>"+_name+"</b>"
                                         color: "black"
                                         wrapMode: Text.WrapAnywhere
+                                        elide: Text.ElideMiddle
+                                        font.pixelSize: parent.width*0.1
+                                    }
+                                    Text{
+                                        id: _objVersion
+                                        anchors.top: _objName.bottom
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        text: _version
+                                        color: "grey"
+                                        wrapMode: Text.WrapAnywhere
+                                        elide: Text.ElideMiddle
+                                        font.pixelSize: parent.width*0.1
+                                    }
+                                    Text{
+                                        anchors.top: _objVersion.bottom
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        text: _namespace
+                                        color: "grey"
+                                        wrapMode: Text.WrapAnywhere
+                                        elide: Text.ElideMiddle
+                                        font.pixelSize: parent.width*0.1
                                     }
                                 }
+
                             }
                         }
                     }
