@@ -12,7 +12,7 @@ QbApp{
     changeWindowPosition: true
     minimumHeight: 550
     minimumWidth: 500
-    property string customSQ: "SELECT TagRelation.appid,Apps.namespace,Apps.repo,Apps.version FROM TagList,TagRelation,Apps WHERE TagRelation.tagid LIKE TagList.id AND TagRelation.appid LIKE Apps.id AND TagList.tag LIKE '%%' GROUP BY appid";
+    property string customSQ: "SELECT TagRelation.appid,Apps.namespace,Apps.repo,Apps.version FROM TagList,TagRelation,Apps WHERE TagRelation.tagid LIKE TagList.id AND TagRelation.appid LIKE Apps.id AND TagList.tag LIKE '%%' COLLATE NOCASE GROUP BY appid ORDER BY appid DESC";
 
     KeyNavigation.tab: objSearchField
 
@@ -276,7 +276,7 @@ QbApp{
                             property string _version: String(VERSION)
                             property string _namespace: String(NAMESPACE)
                             Rectangle{
-                                color: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?"white":"white"
+                                color: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?"lightyellow":"white"
                                 border.width: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?QbCoreOne.scale(3):0
                                 border.color: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?"grey":"transparent"
                                 width: QbCoreOne.scale(145)
