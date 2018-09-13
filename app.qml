@@ -64,6 +64,12 @@ QbApp{
         return "https://raw.githubusercontent.com/"+repo+"/"+version+"/"+file;
     }
 
+    function reindex(){
+        sendObject({
+                       "action" : "indexing"
+                   });
+    }
+
 
     QbAppStorage{
         id: objAppStorage
@@ -122,11 +128,11 @@ QbApp{
         else if(json_data["action"] === "indexing:finished"){
             //console.log(String(json_data["data"]).indexOf("Index failed"));
             if(String(json_data["data"]).indexOf("Index failed")===0 ){
-                console.log("got zero");
+                //console.log("got zero");
                 objMainView.currentIndex = 2;
             }
             else{
-                console.log("indexing finished");
+                //console.log("indexing finished");
                 objMainAppUi.search("");
                 objMainView.currentIndex = 1;
             }
