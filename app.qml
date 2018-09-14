@@ -15,10 +15,36 @@ QbApp{
     minimumWidth: 500
     property string customSQ: "SELECT TagRelation.appid,Apps.namespace,Apps.repo,Apps.version FROM TagList,TagRelation,Apps WHERE TagRelation.tagid LIKE TagList.id AND TagRelation.appid LIKE Apps.id AND TagList.tag LIKE '%%' COLLATE NOCASE GROUP BY appid ORDER BY appid DESC";
     property bool isDownloadActive: false;
+    property int totalGirdPerRow: 4
+    property int gridWidth: parent.width/totalGirdPerRow
 
     property var downloadingAppsList: []
 
     KeyNavigation.tab: objSearchField
+
+    onWidthChanged: {
+        getGridState(width)
+    }
+
+    function getGridState(s){
+        objMainAppUi.totalGirdPerRow = 4;
+        if(s<576){
+            objMainAppUi.totalGirdPerRow = 4;
+        }
+        else if(s>=576 && s<768){
+            objMainAppUi.totalGirdPerRow = 4;
+        }
+        else if(s>=768 && s<960){
+            objMainAppUi.totalGirdPerRow = 6;
+        }
+        else if(s>=960 && s<1200){
+            objMainAppUi.totalGirdPerRow = 6;
+        }
+        else{
+            objMainAppUi.totalGirdPerRow = 8;
+        }
+        objMainAppUi.gridWidth = objMainAppUi.width/objMainAppUi.totalGirdPerRow;
+    }
 
     QbSettings{
         id: objSettings
@@ -33,9 +59,9 @@ QbApp{
         id: objSqlSM
         tableStructure: {
             "AppInfo":"id INTEGER PRIMARY KEY,namespace VARCHAR(250) NOT NULL UNIQUE,app TEXT,appimage TEXT",
-            "Apps":"id INTEGER PRIMARY KEY,namespace VARCHAR(250) NOT NULL UNIQUE,repo VARCHAR(250) NOT NULL UNIQUE,version VARCHAR(30) NOT NULL",
-            "TagList":"id INTEGER PRIMARY KEY,tag VARCHAR(100) NOT NULL UNIQUE",
-            "TagRelation":"id INTEGER PRIMARY KEY,appid INTEGER DEFAULT 0,tagid INTEGER DEFAULT 0"
+                    "Apps":"id INTEGER PRIMARY KEY,namespace VARCHAR(250) NOT NULL UNIQUE,repo VARCHAR(250) NOT NULL UNIQUE,version VARCHAR(30) NOT NULL",
+                    "TagList":"id INTEGER PRIMARY KEY,tag VARCHAR(100) NOT NULL UNIQUE",
+                    "TagRelation":"id INTEGER PRIMARY KEY,appid INTEGER DEFAULT 0,tagid INTEGER DEFAULT 0"
         };
         customSearchQuery: objMainAppUi.customSQ;
         customRoles: ["APPID","NAMESPACE","REPO","VERSION"]
@@ -408,7 +434,7 @@ QbApp{
                     //SearchContent will go there
                     GridView{
                         id: objCVContentGrid
-                        cellWidth: QbCoreOne.scale(150)
+                        cellWidth: objMainAppUi.gridWidth
                         cellHeight: QbCoreOne.scale(200)
                         model: objSqlSM
                         currentIndex: 0
@@ -470,8 +496,8 @@ QbApp{
                                 color: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?Material.color(Material.Yellow,Material.Shade300):"white"
                                 //border.width: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?QbCoreOne.scale(3):0
                                 //border.color: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?"grey":"transparent"
-                                width: QbCoreOne.scale(145)
-                                height: QbCoreOne.scale(195)
+                                width: objCVContentGrid.cellWidth - QbCoreOne.scale(5)
+                                height: objCVContentGrid.cellHeight -  QbCoreOne.scale(5)
                                 anchors.centerIn: parent
                                 radius: QbCoreOne.scale(5)
 
@@ -483,7 +509,7 @@ QbApp{
                                     anchors.top: parent.top
                                     anchors.topMargin: QbCoreOne.scale(5)
 
-                                    width: QbCoreOne.scale(64)
+                                    width: Math.min(QbCoreOne.scale(64),parent.width*0.50)
                                     height: width
 
                                     sourceSize.width: width
