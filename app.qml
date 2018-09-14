@@ -1,3 +1,4 @@
+import Qb 1.0
 import QbEx 1.0
 import QbSql 1.0
 import Qb.Net 1.0
@@ -13,6 +14,7 @@ QbApp{
     minimumHeight: 550
     minimumWidth: 500
     property string customSQ: "SELECT TagRelation.appid,Apps.namespace,Apps.repo,Apps.version FROM TagList,TagRelation,Apps WHERE TagRelation.tagid LIKE TagList.id AND TagRelation.appid LIKE Apps.id AND TagList.tag LIKE '%%' COLLATE NOCASE GROUP BY appid ORDER BY appid DESC";
+    property bool isDownloadActive: false;
 
     KeyNavigation.tab: objSearchField
 
@@ -249,7 +251,7 @@ QbApp{
                 anchors.top: objCVSearchBar.bottom
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.bottom: objCVBottomBar.top
+                anchors.bottom: parent.bottom
 
                 SwipeView{
                     id: objCVContentView
@@ -263,10 +265,10 @@ QbApp{
                     GridView{
                         id: objCVContentGrid
                         cellWidth: QbCoreOne.scale(150)
-                        cellHeight: QbCoreOne.scale(180)
+                        cellHeight: QbCoreOne.scale(200)
                         model: objSqlSM
                         currentIndex: 0
-                        KeyNavigation.tab: objSearchField
+                        KeyNavigation.tab: objDownloadListButton
                         delegate: Item{
                             width: objCVContentGrid.cellWidth
                             height: objCVContentGrid.cellHeight
@@ -275,14 +277,43 @@ QbApp{
                             property string _repo: String(REPO)
                             property string _version: String(VERSION)
                             property string _namespace: String(NAMESPACE)
+                            ToolTip{
+                                id: _objToolTip
+                                text: "Tap and hold to install."
+                                timeout: 3000
+                            }
+
+                            function download(){
+                                objCVContentGrid.forceActiveFocus();
+                                objCVContentGrid.currentIndex = index;
+                                console.log("Downloading and installing");
+                                objMainAppUi.isDownloadActive = true;
+                            }
+
+                            Keys.onPressed: {
+                                if(event.key === Qt.Key_Enter || event.key === Qt.Key_Return || event.key === Qt.Key_Space){
+                                    download();
+                                }
+                            }
                             Rectangle{
-                                color: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?"lightyellow":"white"
-                                border.width: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?QbCoreOne.scale(3):0
-                                border.color: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?"grey":"transparent"
+                                color: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?Material.color(Material.Yellow,Material.Shade300):"white"
+                                //border.width: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?QbCoreOne.scale(3):0
+                                //border.color: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?"grey":"transparent"
                                 width: QbCoreOne.scale(145)
-                                height: QbCoreOne.scale(175)
+                                height: QbCoreOne.scale(195)
                                 anchors.centerIn: parent
                                 radius: QbCoreOne.scale(5)
+                                MouseArea{
+                                    anchors.fill: parent
+                                    onClicked: {
+                                        objCVContentGrid.forceActiveFocus();
+                                        objCVContentGrid.currentIndex = index;
+                                        _objToolTip.visible = true;
+                                    }
+                                    onPressAndHold: {
+                                        download();
+                                    }
+                                }
 
                                 Image{
                                     id: _objAppImage
@@ -359,6 +390,30 @@ QbApp{
                                     }
                                 }
 
+                                Rectangle{
+                                    color: Material.color(Material.Red)
+
+                                    anchors.left: parent.left
+                                    //anchors.leftMargin: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?QbCoreOne.scale(3):0
+
+                                    anchors.right: parent.right
+                                    //anchors.rightMargin: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?QbCoreOne.scale(3):0
+
+                                    anchors.bottom: parent.bottom
+                                    //anchors.bottomMargin: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?QbCoreOne.scale(3):0
+
+                                    height: QbCoreOne.scale(25)
+                                    //radius: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?0:QbCoreOne.scale(5)
+                                    radius: QbCoreOne.scale(5)
+
+                                    Text{
+                                        anchors.fill: parent
+                                        color: "white"
+                                        verticalAlignment: Text.AlignVCenter
+                                        horizontalAlignment: Text.AlignHCenter
+                                        text: "INSTALL"
+                                    }
+                                }
                             }
                         }
                     }
@@ -380,13 +435,55 @@ QbApp{
                 }
             }//End of content area
 
-            Rectangle{
+            Item{
                 id: objCVBottomBar
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
                 anchors.right: parent.right
-                height: QbCoreOne.scale(50)
-                color: QbCoreOne.changeTransparency("black",180)
+                height: QbCoreOne.scale(55)
+                width: QbCoreOne.scale(55)
+
+                Item{
+                    anchors.right:  parent.right
+                    anchors.rightMargin: QbCoreOne.scale(5)
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin:  QbCoreOne.scale(5)
+                    width: QbCoreOne.scale(55)
+                    height: QbCoreOne.scale(55)
+                    RoundButton{
+                        id: objDownloadListButton
+                        KeyNavigation.tab: objSearchField
+                        anchors.centerIn: parent
+                        width: QbCoreOne.scale(50)
+                        height: QbCoreOne.scale(50)
+                        Material.background:  "black"
+                        text: QbFA.icon("fa-download")
+                        font.pixelSize: height*0.30
+                        font.family: QbFA.family
+                    }
+                    Text{
+                        anchors.centerIn: parent
+                        width: QbCoreOne.scale(50)
+                        height: QbCoreOne.scale(50)
+
+                        text: QbFA.icon("fa-spinner")
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+                        font.family: QbFA.family
+                        font.pixelSize: height*0.70
+                        visible: objMainAppUi.isDownloadActive
+                        color: "white"
+                        RotationAnimation on rotation {
+                            loops: Animation.Infinite
+                            from: 0.0
+                            to: 360.0
+                            duration: 2000;
+                            running: objMainAppUi.isDownloadActive
+                            easing: Easing.InCirc
+                        }
+                    }
+
+                }
             }
         }
 
