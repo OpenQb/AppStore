@@ -62,7 +62,7 @@ function SpecialDict(){
     }
 }
 
-load("AppStoreDbApi.js");
+load("AppStoreDbApi.qjs");
 var readySignalSent = false;
 var dbApiObject = new AppStoreDbApi();
 var counter = 30*2;

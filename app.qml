@@ -16,6 +16,8 @@ QbApp{
     property string customSQ: "SELECT TagRelation.appid,Apps.namespace,Apps.repo,Apps.version FROM TagList,TagRelation,Apps WHERE TagRelation.tagid LIKE TagList.id AND TagRelation.appid LIKE Apps.id AND TagList.tag LIKE '%%' COLLATE NOCASE GROUP BY appid ORDER BY appid DESC";
     property bool isDownloadActive: false;
 
+    property var downloadingAppsList: []
+
     KeyNavigation.tab: objSearchField
 
     QbSettings{
@@ -30,11 +32,10 @@ QbApp{
     QbSqlSM{
         id: objSqlSM
         tableStructure: {
-            "KeyValuePair":"id INTEGER PRIMARY KEY,key VARCHAR(100) NOT NULL UNIQUE,value TEXT NOT NULL DEFAULT ''",
-                    "AppInfo":"id INTEGER PRIMARY KEY,namespace VARCHAR(250) NOT NULL UNIQUE,app TEXT,appimage TEXT",
-                    "Apps":"id INTEGER PRIMARY KEY,namespace VARCHAR(250) NOT NULL UNIQUE,repo VARCHAR(250) NOT NULL UNIQUE,version VARCHAR(30) NOT NULL",
-                    "TagList":"id INTEGER PRIMARY KEY,tag VARCHAR(100) NOT NULL UNIQUE",
-                    "TagRelation":"id INTEGER PRIMARY KEY,appid INTEGER DEFAULT 0,tagid INTEGER DEFAULT 0"
+            "AppInfo":"id INTEGER PRIMARY KEY,namespace VARCHAR(250) NOT NULL UNIQUE,app TEXT,appimage TEXT",
+            "Apps":"id INTEGER PRIMARY KEY,namespace VARCHAR(250) NOT NULL UNIQUE,repo VARCHAR(250) NOT NULL UNIQUE,version VARCHAR(30) NOT NULL",
+            "TagList":"id INTEGER PRIMARY KEY,tag VARCHAR(100) NOT NULL UNIQUE",
+            "TagRelation":"id INTEGER PRIMARY KEY,appid INTEGER DEFAULT 0,tagid INTEGER DEFAULT 0"
         };
         customSearchQuery: objMainAppUi.customSQ;
         customRoles: ["APPID","NAMESPACE","REPO","VERSION"]
@@ -64,6 +65,18 @@ QbApp{
         }
     }
 
+    function reload(){
+        var tag = objSearchField.text;
+        if(tag === undefined || tag === null || tag === ""){
+            objSqlSM.customSearchQuery = objMainAppUi.customSQ;
+            objSqlSM.search("");
+        }
+        else{
+            objSqlSM.customSearchQuery = objMainAppUi.customSQ.replace("%%","%"+tag+"%");
+            objSqlSM.search("");
+        }
+    }
+
     function dataURL(repo,version,file){
         return "https://raw.githubusercontent.com/"+repo+"/"+version+"/"+file;
     }
@@ -81,6 +94,45 @@ QbApp{
 
     QbDM{
         id: objQbDM
+        onDownloaded: {
+            objQbDM.clear();
+            objMainAppUi.downloadingAppsList.splice(objMainAppUi.downloadingAppsList.indexOf(link),1);
+            //            console.log("Success");
+            //            console.log(link);
+            //            console.log(filePath);
+            //            console.log(extras);
+
+            if(objAppStorage.installApp(filePath,true)){
+                _objToolTip.text = extras + " Installed";
+                _objToolTip.visible = true;
+                objAppStorage.reindex();
+            }
+            else{
+                _objToolTip.text = "Failed to install "+extras;
+                _objToolTip.visible = true;
+            }
+
+            if(objMainAppUi.downloadingAppsList.length === 0){
+                objMainAppUi.isDownloadActive = false;
+            }
+            objMainAppUi.reload();
+        }
+
+        onDownloadFailed: {
+            objQbDM.clear();
+            _objToolTip.text = "Failed to install "+extras;
+            _objToolTip.visible = true;
+            objMainAppUi.downloadingAppsList.splice(objMainAppUi.downloadingAppsList.indexOf(link),1);
+            //            console.log("Failed");
+            //            console.log(link);
+            //            console.log(filePath);
+            //            console.log(extras);
+
+            if(objMainAppUi.downloadingAppsList.length === 0){
+                objMainAppUi.isDownloadActive = false;
+            }
+            objMainAppUi.reload();
+        }
     }
 
     QbQJSEngine{
@@ -133,6 +185,7 @@ QbApp{
             //console.log(String(json_data["data"]).indexOf("Index failed"));
             if(String(json_data["data"]).indexOf("Index failed")===0 ){
                 //console.log("got zero");
+                objMainAppUi.search("");
                 objMainView.currentIndex = 2;
             }
             else{
@@ -153,11 +206,94 @@ QbApp{
     Component.onCompleted: {
         objQEngine.installQbExtensions();
         objQEngine.setPackageVariant(objMainAppUi.packageVariant());
-        objQEngine.setCodeFromFile(objMainAppUi.absolutePath("/exjs/xengine.js"));
+        objQEngine.setCodeFromFile(objMainAppUi.absolutePath("/exjs/xengine.qjs"));
         objQEngine.start();
     }
 
     /*********** UI ******************/
+    Popup {
+        id: objDownloadListPopup
+        x: (parent.width - width)/2.0
+        y: (parent.height - height)/2.0
+        width: parent.width*0.80
+        height: parent.height*0.80
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+
+        Item{
+            width: parent.width
+            height: parent.height
+            anchors.fill: parent
+
+            ListView{
+                id: objDownloadListView
+                width: parent.width
+                height: parent.height - objCloseButton.height
+                model: objQbDM
+                clip: true
+                delegate: Rectangle{
+                    width: objDownloadListView.width
+                    height: QbCoreOne.scale(100)
+                    color: "black"
+                    border.width: 1
+                    border.color: "white"
+                    Column{
+                        anchors.fill: parent
+                        anchors.leftMargin: 5
+                        anchors.rightMargin: 5
+                        anchors.bottomMargin: 5
+                        anchors.topMargin: 5
+                        Text{
+                            text: "Name: "+name
+                            width: parent.width
+                            height: 15
+                            font.pixelSize: 15
+                            color: "white"
+                            elide: Text.ElideMiddle
+                        }
+                        Text{
+                            text: "URL: "+givenLink
+                            width: parent.width
+                            height: 15
+                            font.pixelSize: 15
+                            color: "white"
+                            elide: Text.ElideMiddle
+                        }
+                        Text{
+                            text: "Status: "+status
+                            width: parent.width
+                            height: 15
+                            font.pixelSize: 15
+                            color: "white"
+                            elide: Text.ElideMiddle
+                        }
+                        Text{
+                            text: "Downloaded: "+downloadedSize+" Bytes"
+                            width: parent.width
+                            height: 15
+                            font.pixelSize: 15
+                            color: "white"
+                            elide: Text.ElideMiddle
+                        }
+                    }
+                }
+            }
+
+            Button{
+                id: objCloseButton
+                Material.background: Material.Red
+                text: "CLOSE"
+                x: (parent.width - width)/2.0
+                y: parent.height - height
+                onClicked: {
+                    objDownloadListPopup.close();
+                }
+            }
+        }
+    }
+
+
     SwipeView{
         id: objMainView
         interactive: false
@@ -249,9 +385,17 @@ QbApp{
             //Content Area
             Item{
                 anchors.top: objCVSearchBar.bottom
+                anchors.topMargin: QbCoreOne.scale(10)
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
+                ToolTip{
+                    id: _objToolTip
+                    text: ""
+                    timeout: 3000
+                    x: (parent.width -  width)/2.0
+                    y: (parent.height - height)/2.0
+                }
 
                 SwipeView{
                     id: objCVContentView
@@ -270,6 +414,7 @@ QbApp{
                         currentIndex: 0
                         KeyNavigation.tab: objDownloadListButton
                         delegate: Item{
+                            id: _objDelegateGrid
                             width: objCVContentGrid.cellWidth
                             height: objCVContentGrid.cellHeight
                             property string _name: String(REPO).split("/")[1]
@@ -277,22 +422,48 @@ QbApp{
                             property string _repo: String(REPO)
                             property string _version: String(VERSION)
                             property string _namespace: String(NAMESPACE)
-                            ToolTip{
-                                id: _objToolTip
-                                text: "Tap and hold to install."
-                                timeout: 3000
+                            property string _url: "https://codeload.github.com/"+_objDelegateGrid._repo+"/legacy.zip/"+_objDelegateGrid._version
+                            property bool _isDownloading: false
+
+                            Component.onCompleted: {
+                                if(objMainAppUi.downloadingAppsList.indexOf(_objDelegateGrid._url) !==-1){
+                                    _objDelegateGrid._isDownloading = true;
+                                }
                             }
 
                             function download(){
                                 objCVContentGrid.forceActiveFocus();
                                 objCVContentGrid.currentIndex = index;
                                 console.log("Downloading and installing");
+                                objMainAppUi.downloadingAppsList.push(_objDelegateGrid._url);
                                 objMainAppUi.isDownloadActive = true;
+                                _objDelegateGrid._isDownloading = true;
+                                objQbDM.download(_objDelegateGrid._url,_objDelegateGrid._namespace+".zip",_objDelegateGrid._name,true);
+                            }
+
+                            function pressAction(){
+                                if(_objDownloadText.text === "INSTALL"){
+                                    if(!_objDelegateGrid._isDownloading) {
+                                        _objInstallButton.color = Material.color(Material.Green);
+                                        download();
+                                    }
+                                }
+                                else if(_objDownloadText.text === "REMOVE"){
+                                    if(objAppStorage.removeApp(_objDelegateGrid._namespace)){
+                                        objAppStorage.reindex();
+                                        objMainAppUi.reload();
+                                    }
+                                    else{
+                                        _objToolTip.text = "Failed to remove "+_objDelegateGrid._name;
+                                        _objToolTip.visible = true;
+                                    }
+                                }
                             }
 
                             Keys.onPressed: {
                                 if(event.key === Qt.Key_Enter || event.key === Qt.Key_Return || event.key === Qt.Key_Space){
-                                    download();
+                                    event.accepted = true;
+                                    pressAction();
                                 }
                             }
                             Rectangle{
@@ -303,17 +474,6 @@ QbApp{
                                 height: QbCoreOne.scale(195)
                                 anchors.centerIn: parent
                                 radius: QbCoreOne.scale(5)
-                                MouseArea{
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        objCVContentGrid.forceActiveFocus();
-                                        objCVContentGrid.currentIndex = index;
-                                        _objToolTip.visible = true;
-                                    }
-                                    onPressAndHold: {
-                                        download();
-                                    }
-                                }
 
                                 Image{
                                     id: _objAppImage
@@ -340,6 +500,12 @@ QbApp{
                                                 ++_objAppImage.imageNo;
                                                 _objAppImage.source = _objAppImage.images[_objAppImage.imageNo];
                                             }
+                                        }
+                                    }
+                                    MouseArea{
+                                        anchors.fill: parent
+                                        onPressed: {
+                                            objCVContentGrid.currentIndex = index;
                                         }
                                     }
                                 }
@@ -391,7 +557,8 @@ QbApp{
                                 }
 
                                 Rectangle{
-                                    color: Material.color(Material.Red)
+                                    id: _objInstallButton
+                                    color: _objDelegateGrid._isDownloading?Material.color(Material.Green):Material.color(Material.Red)
 
                                     anchors.left: parent.left
                                     //anchors.leftMargin: index === objCVContentGrid.currentIndex && objCVContentGrid.activeFocus?QbCoreOne.scale(3):0
@@ -407,11 +574,29 @@ QbApp{
                                     radius: QbCoreOne.scale(5)
 
                                     Text{
+                                        id: _objDownloadText
                                         anchors.fill: parent
                                         color: "white"
                                         verticalAlignment: Text.AlignVCenter
                                         horizontalAlignment: Text.AlignHCenter
-                                        text: "INSTALL"
+                                        text: _objDelegateGrid._isDownloading?"DOWNLOADING..": String(objAppStorage.properTextForDownload(_objDelegateGrid._namespace,_objDelegateGrid._version)).toUpperCase()
+                                    }
+                                    MouseArea{
+                                        hoverEnabled: true
+                                        anchors.fill: parent
+                                        enabled: !_objDelegateGrid._isDownloading
+                                        onClicked: {
+                                            pressAction();
+                                        }
+                                        onEntered: {
+                                            if(!_objDelegateGrid._isDownloading) _objInstallButton.color = Material.color(Material.Brown);
+                                        }
+                                        onExited: {
+                                            if(!_objDelegateGrid._isDownloading) _objInstallButton.color = Material.color(Material.Red);
+                                        }
+                                        onPressAndHold: {
+                                            pressAction();
+                                        }
                                     }
                                 }
                             }
@@ -460,6 +645,14 @@ QbApp{
                         text: QbFA.icon("fa-download")
                         font.pixelSize: height*0.30
                         font.family: QbFA.family
+                        onClicked: {
+                            if(objDownloadListPopup.visible){
+                                objDownloadListPopup.close();
+                            }
+                            else{
+                                objDownloadListPopup.open();
+                            }
+                        }
                     }
                     Text{
                         anchors.centerIn: parent
@@ -479,10 +672,8 @@ QbApp{
                             to: 360.0
                             duration: 2000;
                             running: objMainAppUi.isDownloadActive
-                            easing: Easing.InCirc
                         }
                     }
-
                 }
             }
         }

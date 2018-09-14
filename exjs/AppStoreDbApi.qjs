@@ -1,5 +1,5 @@
-load("QbRequest.js");
-load("AppStoreDb.js");
+load("QbRequest.qjs");
+load("AppStoreDb.qjs");
 
 /* AppStoreDbApi class to Work with GitHubApi */
 function AppStoreDbApi()
@@ -104,6 +104,7 @@ function AppStoreDbApi()
     var lastHashToLatest = function(){
         var lastHash = String(dbObject.getValue("LAST_HASH"));
         var urlLatestCommitHash = getLastCommitHashURL();
+        sendIndexingProgress("LastHash {"+lastHash+"}");
 
         requestObject.get(urlLatestCommitHash,{},function(data,status_code,headers){
             if(status_code === 200){
@@ -123,6 +124,7 @@ function AppStoreDbApi()
                         var urlHashCompare;
                         urlHashCompare = getCompareURL(lastHash,latestHash);
                         sendIndexingProgress("Hash {"+latestHash+"} collecting.");
+                        sendIndexingProgress("CompareURL {"+urlHashCompare+"}");
                         requestObject.get(urlHashCompare,{},function(data,status_code,headers){
                             if(status_code === 200){
 

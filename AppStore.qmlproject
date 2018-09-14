@@ -21,4 +21,17 @@ Project {
     Files{
         paths:"./.gitignore"
     }
+
+    JavaScriptFiles{
+        paths:"./exjs/AppStoreDb.qjs"
+    }
+    JavaScriptFiles{
+        paths:"./exjs/AppStoreDbApi.qjs"
+    }
+    JavaScriptFiles{
+        paths:"./exjs/QbRequest.qjs"
+    }
+    JavaScriptFiles{
+        paths:"./exjs/xengine.qjs"
+    }
 }
