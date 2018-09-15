@@ -4,6 +4,7 @@ import QbSql 1.0
 import Qb.Net 1.0
 import Qb.Core 1.0
 import QtQuick 2.11
+import Qb.Android 1.0
 
 import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.2
@@ -21,6 +22,18 @@ QbApp{
     property var downloadingAppsList: []
 
     KeyNavigation.tab: objSearchField
+
+    Keys.onReleased: {
+        event.accepted = false;
+        if (event.key === Qt.Key_Back || event.key === Qt.Key_Escape) {
+            if(Qt.inputMethod.visible){
+                Qt.inputMethod.hide();
+                event.accepted = true;
+                objAndroidExtras.enableFullScreen();
+                objMainAppUi.forceActiveFocus();
+            }
+        }
+    }
 
     onWidthChanged: {
         getGridState(width)
@@ -53,6 +66,10 @@ QbApp{
         property alias windowHeight: objMainAppUi.windowHeight
         property alias windowX: objMainAppUi.windowX
         property alias windowY: objMainAppUi.windowY
+    }
+
+    QbAndroidExtras{
+        id: objAndroidExtras
     }
 
     QbSqlSM{
@@ -132,6 +149,8 @@ QbApp{
                 _objToolTip.text = extras + " Installed";
                 _objToolTip.visible = true;
                 objAppStorage.reindex();
+                console.log("Sending reloadAppStorage");
+                QbCoreOne.sendMessageToQb("reloadAppStorage");
             }
             else{
                 _objToolTip.text = "Failed to install "+extras;
@@ -478,6 +497,8 @@ QbApp{
                                     if(objAppStorage.removeApp(_objDelegateGrid._namespace)){
                                         objAppStorage.reindex();
                                         objMainAppUi.reload();
+                                        console.log("Sending reloadAppStorage");
+                                        QbCoreOne.sendMessageToQb("reloadAppStorage");
                                     }
                                     else{
                                         _objToolTip.text = "Failed to remove "+_objDelegateGrid._name;
@@ -605,7 +626,8 @@ QbApp{
                                         color: "white"
                                         verticalAlignment: Text.AlignVCenter
                                         horizontalAlignment: Text.AlignHCenter
-                                        text: _objDelegateGrid._isDownloading?"DOWNLOADING..": String(objAppStorage.properTextForDownload(_objDelegateGrid._namespace,_objDelegateGrid._version)).toUpperCase()
+                                        elide: Text.ElideMiddle
+                                        text: _objDelegateGrid._isDownloading?"DOWNLOADING...": String(objAppStorage.properTextForDownload(_objDelegateGrid._namespace,_objDelegateGrid._version)).toUpperCase()
                                     }
                                     MouseArea{
                                         hoverEnabled: true
