@@ -23,14 +23,33 @@ QbApp{
 
     KeyNavigation.tab: objSearchField
 
+    Connections{
+        target: Qt.inputMethod
+        onVisibleChanged:{
+            if(!Qt.inputMethod.visible){
+                objAndroidExtras.enableFullScreen();
+                objCVContentGrid.forceActiveFocus();
+            }
+            else{
+                objAndroidExtras.disableFullScreen();
+            }
+        }
+        onKeyboardRectangleChanged: {
+            if (Qt.inputMethod.visible) {
+            }
+        }
+    }
+
     Keys.onReleased: {
         event.accepted = false;
         if (event.key === Qt.Key_Back || event.key === Qt.Key_Escape) {
             if(Qt.inputMethod.visible){
                 Qt.inputMethod.hide();
                 event.accepted = true;
+            }
+            else{
                 objAndroidExtras.enableFullScreen();
-                objMainAppUi.forceActiveFocus();
+                objCVContentGrid.forceActiveFocus();
             }
         }
     }
