@@ -512,6 +512,12 @@ QbApp{
                                         download();
                                     }
                                 }
+                                if(_objDownloadText.text === "UPDATE"){
+                                    if(!_objDelegateGrid._isDownloading) {
+                                        _objInstallButton.color = Material.color(Material.Green);
+                                        download();
+                                    }
+                                }
                                 else if(_objDownloadText.text === "REMOVE"){
                                     if(objAppStorage.removeApp(_objDelegateGrid._namespace)){
                                         objAppStorage.reindex();
